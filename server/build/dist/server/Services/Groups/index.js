@@ -1,5 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var GroupsService_1 = require("./GroupsService");
-exports.default = GroupsService_1.default;
+var GroupsService = require("./GroupsService");
+exports.default = GroupsService;
 //# sourceMappingURL=index.js.map

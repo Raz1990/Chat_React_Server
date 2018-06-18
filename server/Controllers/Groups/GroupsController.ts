@@ -1,7 +1,12 @@
 import * as services from './../../Services';
 
-export default async function f(req , res) {
-    const user = await services.GroupsService(req.params.id);
-
-    res.json(user);
+export async function getAllGroups(req , res) {
+    try {
+        const groups = await services.GroupsService.getAllGroups();
+        res.json(groups);
+    }
+    catch (e) {
+        console.log('GET ALL GROUPS ERROR',e);
+        res.send('Bad request', e);
+    }
 }

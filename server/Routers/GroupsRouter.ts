@@ -1,9 +1,8 @@
 import * as express from 'express';
+import * as Controllers from "../Controllers";
 
 const groupsRouter = express.Router();
 
-groupsRouter.get('/', (req, res) => {
-    res.send('Hello world');
-});
+groupsRouter.get('/', Controllers.GroupsController.getAllGroups);
 
 export default groupsRouter;

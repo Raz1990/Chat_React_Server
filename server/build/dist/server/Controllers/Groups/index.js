@@ -1,5 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var GroupsController_1 = require("./GroupsController");
-exports.default = GroupsController_1.default;
+var GroupsController = require("./GroupsController");
+exports.default = GroupsController;
 //# sourceMappingURL=index.js.map

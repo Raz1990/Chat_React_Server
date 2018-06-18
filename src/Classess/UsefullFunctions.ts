@@ -1,7 +1,65 @@
+import {User} from "./User";
+import {Group} from "./Group";
+import StateStore from "./../State/StateStore";
+
 class MyFunctions {
 
+    static Userify(fakeUsers){
+        let usersARR = [];
+        for (const fakeUser of fakeUsers){
+            usersARR.push(new User(fakeUser.id,fakeUser.user_name,fakeUser.password,fakeUser.age));
+        }
+        return usersARR;
+    }
+
+    static UserifyOne(fakeUser){
+        return new User(fakeUser.id,fakeUser.user_name,fakeUser.password,fakeUser.age);
+    }
+
+    static Groupify(fakeGroups){
+        let groupsARR = [];
+        for (const fakeGroup of fakeGroups){
+            groupsARR.push(this._innerGroupify(fakeGroup));
+        }
+        this.groupParentify(groupsARR);
+        return groupsARR;
+    }
+
+    static _innerGroupify(fakeGroup){
+        let groupMembers = [];
+
+        for (const member of fakeGroup.members) {
+            //if it has members, that means its a group
+            if (!member.members){
+                groupMembers.push(new User(member.id,member.user_name,member.password,member.age));
+            }
+            else {
+                groupMembers.push(this._innerGroupify(member));
+            }
+        }
+
+        return new Group(fakeGroup.id,fakeGroup.group_name,groupMembers,fakeGroup.is_child);
+    }
+
+    static groupParentify(groupsARR){
+        for (const parentGroup of groupsARR){
+            for (const childGroup of parentGroup.getGroupMembers()){
+                if (childGroup.getType() === 'group'){
+                    childGroup.setParentGroup(parentGroup);
+                }
+                else{
+                    break;
+                }
+                if (childGroup.getGroupMembers()) {
+                    this.groupParentify([childGroup]);
+                }
+            }
+        }
+    }
+
+
     //gets an element and gives it the "active" class
-    makeActive = (element: any) => {
+    static makeActive = (element: any) => {
 
         let workingElement = element.target;
 
@@ -9,17 +67,32 @@ class MyFunctions {
             workingElement = element;
         }
 
-        this.removeActive();
+        MyFunctions.removeActive();
 
         //add the active status to the selected element
         workingElement.classList.toggle('active');
 
-        let chattingWith = {} //this.db.getChatEntity(workingElement.innerText);
+        let stateStore = StateStore.getInstance();
+        let chattingWith = MyFunctions.getChatEntity(workingElement);
+        stateStore.set('inChatWith', chattingWith);
 
         return chattingWith;
     };
 
-    removeActive(){
+    static getChatEntity(name: string) {
+        let entity;
+        const users = StateStore.getInstance().get('allUsers');
+        const groups = StateStore.getInstance().get('allGroups');
+
+        entity = users.find(o => o.getName() === name);
+        if (!entity){
+            entity = groups.find(o => o.getName() === name);
+        }
+
+        return entity;
+    }
+
+    static removeActive(){
         //remove active status from any previous active
         let currentlyActive = document.getElementsByClassName('active');
         if (currentlyActive.length > 0) {
@@ -28,7 +101,7 @@ class MyFunctions {
     }
 
     //gets an element and expands / collapses all of its children (if have any)
-    decideVisibility = (element: any) => {
+    static decideVisibility = (element: any) => {
 
         let workingElement = element.target;
 
@@ -36,7 +109,7 @@ class MyFunctions {
             workingElement = element;
         }
 
-        let eleChildren = this.getElementChildren(workingElement);
+        let eleChildren = MyFunctions.getElementChildren(workingElement);
 
         if (!eleChildren) {
             return;
@@ -47,9 +120,9 @@ class MyFunctions {
             let child = eleChildren[i];
 
             child.classList.toggle('isHidden');
-            const innerChildHidden = this.areElementsHidden(this.getElementChildren(child));
+            const innerChildHidden = MyFunctions.areElementsHidden(MyFunctions.getElementChildren(child));
             if (child.classList.contains('isHidden') && !innerChildHidden) {
-                this.decideVisibility(child);
+                MyFunctions.decideVisibility(child);
             }
         }
 
@@ -63,7 +136,7 @@ class MyFunctions {
     };
 
     //gets an array of elements, and returns true if one of them has isHidden class
-    areElementsHidden(childrenArray: any) {
+    static areElementsHidden(childrenArray: any) {
         for (const child of childrenArray) {
             if (!child.classList.contains('isHidden')) {
                 return false;
@@ -72,7 +145,7 @@ class MyFunctions {
         return true;
     }
 
-    getElementParent(element: any) {
+    static getElementParent(element: any) {
         //classList[3] = childOf_*** (parent group)
         //substring(8) = just the ***
         if (element.classList[3]) {
@@ -83,50 +156,50 @@ class MyFunctions {
         return null;
     }
 
-    getElementChildren(element: any) {
+    static getElementChildren(element: any) {
         const className = element.classList[1];
         const children = document.getElementsByClassName('childOf_' + className);
         return children;
     }
 
-    setUpKeysEvents(element: any){
+    static setUpKeysEvents(element: any){
         element.addEventListener('keydown', this.decideAction);
     }
 
-    decideAction = (event: any) => {
+    static decideAction = (event: any) => {
         const currentlyActive = document.getElementsByClassName('active')[0];
         let liChildren, liParent;
         if (currentlyActive) {
-            liChildren = this.getElementChildren(currentlyActive);
-            liParent = this.getElementParent(currentlyActive);
+            liChildren = MyFunctions.getElementChildren(currentlyActive);
+            liParent = MyFunctions.getElementParent(currentlyActive);
         }
 
         switch (event.key) {
             case 'ArrowDown':
-                this.dealWithDown(currentlyActive,liChildren,liParent);
+                MyFunctions.dealWithDown(currentlyActive,liChildren,liParent);
                 break;
             case 'ArrowUp':
-                this.dealWithUp(currentlyActive);
+                MyFunctions.dealWithUp(currentlyActive);
                 break;
             case 'Enter':
-                this.dealWithEnter(currentlyActive, liChildren);
+                MyFunctions.dealWithEnter(currentlyActive, liChildren);
                 break;
             case 'ArrowRight':
-                this.dealWithRight(currentlyActive, liChildren);
+                MyFunctions.dealWithRight(currentlyActive, liChildren);
                 break;
             case 'ArrowLeft':
-                this.dealWithLeft(currentlyActive, liChildren, liParent);
+                MyFunctions.dealWithLeft(currentlyActive, liChildren, liParent);
                 break;
         }
     };
 
-    dealWithDown = (currentlyActive: any, liChildren: any, liParent: any) => {
+    static dealWithDown = (currentlyActive: any, liChildren: any, liParent: any) => {
         ///FEATURE
         //Check if there is a li to active if none are active
         const allLis = document.getElementsByTagName('li');
         const firstLi = allLis[0];
         if (!currentlyActive && firstLi){
-            this.makeActive(firstLi);
+            MyFunctions.makeActive(firstLi);
         }
 
         //if nothing is active, and no li in sight, simply go back
@@ -139,11 +212,11 @@ class MyFunctions {
         //check if its a group
         if (currentlyActive.classList.contains('group')) {
             //get its children
-            liChildren = this.getElementChildren(currentlyActive);
+            liChildren = MyFunctions.getElementChildren(currentlyActive);
         }
         //if it's a child of another element, get the parent
         if (currentlyActive.classList.contains('childElement')) {
-            liParent = this.getElementParent(currentlyActive);
+            liParent = MyFunctions.getElementParent(currentlyActive);
         }
 
         idNow = parseInt(currentlyActive.id);
@@ -156,12 +229,12 @@ class MyFunctions {
 
         //if has children and
         //those children are visible and can be moved to
-        if (liChildren && !this.areElementsHidden(liChildren)) {
+        if (liChildren && !MyFunctions.areElementsHidden(liChildren)) {
             eleToActive = liChildren[0];
         }
         else {
             if (liParent) {
-                let parentsChildren = this.getElementChildren(liParent);
+                let parentsChildren = MyFunctions.getElementChildren(liParent);
                 let lastChild = parentsChildren[parentsChildren.length - 1];
                 //if i'm the last active child
                 if (parseInt(lastChild.id) === idNow) {
@@ -172,10 +245,10 @@ class MyFunctions {
             eleToActive = document.getElementById((idNow + 1).toString());
         }
 
-        this.makeActive(eleToActive);
+        MyFunctions.makeActive(eleToActive);
     };
 
-    dealWithUp = (currentlyActive: any) => {
+    static dealWithUp = (currentlyActive: any) => {
         let eleToActive, idNow, previousLi;
 
         idNow = parseInt(currentlyActive.id);
@@ -193,47 +266,47 @@ class MyFunctions {
             }
         }while (eleToActive.classList.contains('isHidden'));
 
-        this.makeActive(eleToActive);
+        MyFunctions.makeActive(eleToActive);
     };
 
-    dealWithLeft = (currentlyActive: any, liChildren: any, liParent: any) => {
+    static dealWithLeft = (currentlyActive: any, liChildren: any, liParent: any) => {
 
         if (liChildren) {
-            if (!this.areElementsHidden(liChildren)) {
-                this.decideVisibility(currentlyActive);
+            if (!MyFunctions.areElementsHidden(liChildren)) {
+                MyFunctions.decideVisibility(currentlyActive);
             }
             else if (liParent) {
-                if (this.areElementsHidden(this.getElementChildren(liParent))) {
-                    this.decideVisibility(liParent);
+                if (MyFunctions.areElementsHidden(MyFunctions.getElementChildren(liParent))) {
+                    MyFunctions.decideVisibility(liParent);
                 }
-                this.makeActive(liParent);
+                MyFunctions.makeActive(liParent);
             }
         }
         else if (liParent) {
-            if (this.areElementsHidden(this.getElementChildren(liParent))) {
-                this.decideVisibility(liParent);
+            if (MyFunctions.areElementsHidden(MyFunctions.getElementChildren(liParent))) {
+                MyFunctions.decideVisibility(liParent);
             }
             else {
-                this.makeActive(liParent);
+                MyFunctions.makeActive(liParent);
             }
         }
     };
 
-    dealWithRight = (currentlyActive: any, liChildren: any) => {
+    static dealWithRight = (currentlyActive: any, liChildren: any) => {
         //if it has children
         if (liChildren.length > 0) {
             //if any of my children are hidden, i will hide myself
-            if (this.areElementsHidden(liChildren)) {
-                this.decideVisibility(currentlyActive);
+            if (MyFunctions.areElementsHidden(liChildren)) {
+                MyFunctions.decideVisibility(currentlyActive);
             }
             //makeActive(liChildren[0]);
         }
     };
 
-    dealWithEnter = (currentlyActive: any, liChildren: any) => {
+    static dealWithEnter = (currentlyActive: any, liChildren: any) => {
         //if it has children
         if (liChildren.length > 0) {
-            this.decideVisibility(currentlyActive);
+            MyFunctions.decideVisibility(currentlyActive);
         }
     };
 }

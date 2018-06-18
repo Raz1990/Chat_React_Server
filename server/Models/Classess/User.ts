@@ -3,7 +3,7 @@ export {User}
 
 class User implements IChatEntity{
 
-    constructor(private id, private user_name: string, private password: string, private age: number) {
+    constructor(public id, public user_name: string, public password: string, public age: number) {
 
     }
 

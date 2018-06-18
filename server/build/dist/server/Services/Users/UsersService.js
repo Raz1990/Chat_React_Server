@@ -15,7 +15,6 @@ function _getUserById(id) {
 function getUserByNameXORPassword(user) {
     return new Promise(function (resolve, reject) {
         var result = _getUserByNameXORPassword(user.name, user.pass);
-        console.log(result);
         resolve(result);
     });
 }

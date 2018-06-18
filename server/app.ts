@@ -12,5 +12,6 @@ app.get('/', (req, res) => {
 
 app.use('/users', routes.usersRouter);
 app.use('/groups', routes.groupsRouter);
+app.use('/messages', routes.messagesRouter);
 
 export default app;

@@ -1,3 +1,3 @@
-import GroupsController from './GroupsController'
+import * as GroupsController from './GroupsController'
 
 export default GroupsController

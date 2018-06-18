@@ -5,7 +5,7 @@ import * as React from 'react';
 import Header from './Header';
 import StateStore from "../State/StateStore";
 import ICanChat from "../Interfaces/ChatEntity";
-import * as MyFunctions from './../Classess/UsefullFunctions';
+import MyFunctions from './../Classess/UsefullFunctions';
 import {User} from './../Classess/User';
 import {Group} from "../Classess/Group";
 
@@ -19,7 +19,6 @@ interface ITreeProps {
 
 class ChatEntitiesTree extends React.Component<ITreeProps,ITreeState> {
 
-    myFuncs = new MyFunctions.default();
     ulTree: any;
 
     constructor(props: ITreeProps){
@@ -84,8 +83,8 @@ class ChatEntitiesTree extends React.Component<ITreeProps,ITreeState> {
 
             if (item.getType() === 'group'){
                 const group_item = item as Group;
-                const parent_group = group_item.getParentGroup();
-                if (parent_group && (idValue > 1 && idValue < items.length)){
+                const is_child = group_item.isChild();
+                if (is_child && (idValue > 1 && idValue < items.length)){
                     continue;
                 }
             }
@@ -102,19 +101,19 @@ class ChatEntitiesTree extends React.Component<ITreeProps,ITreeState> {
 
 
         liList = liList.map((item, idx) => {
-            return <li style={item.style} onClick={this.makeActive} onDoubleClick={this.myFuncs.decideVisibility} className={item.className} id={item.id} key={idx}> {item.innerHTML} </li>;
+            return <li style={item.style} onClick={this.makeActive} onDoubleClick={MyFunctions.decideVisibility} className={item.className} id={item.id} key={idx}> {item.innerHTML} </li>;
         });
 
         return liList;
     }
 
     makeActive(element){
-        const chattingWith = this.myFuncs.makeActive(element);
+        const chattingWith = MyFunctions.makeActive(element);
         StateStore.getInstance().set('inChatWith', chattingWith);
     }
 
     componentDidMount() {
-        this.myFuncs.setUpKeysEvents(this.ulTree.current);
+        MyFunctions.setUpKeysEvents(this.ulTree.current);
     }
 
     public render() {

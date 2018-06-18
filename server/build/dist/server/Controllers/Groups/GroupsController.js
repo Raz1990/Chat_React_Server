@@ -36,19 +36,27 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var services = require("./../../Services");
-function f(req, res) {
+function getAllGroups(req, res) {
     return __awaiter(this, void 0, void 0, function () {
-        var user;
+        var groups, e_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, services.GroupsService(req.params.id)];
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, services.GroupsService.getAllGroups()];
                 case 1:
-                    user = _a.sent();
-                    res.json(user);
-                    return [2 /*return*/];
+                    groups = _a.sent();
+                    res.json(groups);
+                    return [3 /*break*/, 3];
+                case 2:
+                    e_1 = _a.sent();
+                    console.log('GET ALL GROUPS ERROR', e_1);
+                    res.send('Bad request', e_1);
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
             }
         });
     });
 }
-exports.default = f;
+exports.getAllGroups = getAllGroups;
 //# sourceMappingURL=GroupsController.js.map

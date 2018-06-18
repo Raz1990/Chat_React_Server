@@ -9,7 +9,7 @@ import {User} from './../Classess/User';
 import StateStore from "../State/StateStore";
 import ICanChat from "./../Interfaces/ChatEntity";
 
-import * as MyFunctions from './../Classess/UsefullFunctions';
+import MyFunctions from './../Classess/UsefullFunctions';
 
 interface IRightProps {
 }
@@ -44,8 +44,7 @@ class RightArea extends React.Component<IRightProps,IRightSTATE> {
     }
 
     removeActive = () => {
-        const myFuncs = new MyFunctions.default();
-        myFuncs.removeActive();
+        MyFunctions.removeActive();
 
         this.setState({
             inChatWith : null

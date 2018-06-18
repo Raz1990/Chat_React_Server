@@ -1,9 +1,10 @@
 import * as React from 'react';
-//import * as moment from 'moment';
+import * as moment from 'moment';
 import StateStore from './../State/StateStore'
 
 //components imports
 import MyButton from './../Components/MyButton';
+import {ServerAPI} from "../ServerAPI";
 
 interface IMessageInputAreaState {
     message: string
@@ -60,9 +61,12 @@ class MessageInputArea extends React.Component<{},IMessageInputAreaState> {
             message = currentUser.getName() + ': ' + message;
         }
 
-        //this.db.addMessageToAConversation(currentUser, receiver, message, moment().format("HH:mm:ss"));
-
-        StateStore.getInstance().onStoreChanged();
+        ServerAPI.addMessageToAConversation(currentUser.getName(),receiver.getName(),message, moment().format("HH:mm:ss"))
+            .then((done) => {
+                if (done) {
+                    StateStore.getInstance().onStoreChanged();
+                }
+            });
     };
 
     addMessageViaEnter = (key : any) => {

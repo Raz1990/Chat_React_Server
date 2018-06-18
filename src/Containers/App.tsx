@@ -7,6 +7,7 @@ import RightArea from './RightArea';
 import StateStore from "./../State/StateStore";
 import Modal from "./../Components/Modal";
 import {ServerAPI} from "./../ServerAPI";
+import MyFunctions from './../Classess/UsefullFunctions';
 
 interface IAppProps {
 
@@ -39,6 +40,7 @@ class App extends React.Component<IAppProps,any> {
             .then((currentUser) => {
                 //if found a user
                 if (currentUser){
+                    currentUser = MyFunctions.UserifyOne(currentUser);
                     alert('Welcome, ' + currentUser.getName());
                     this.setState({currentUser:currentUser});
                     StateStore.getInstance().set('currentUser', currentUser);

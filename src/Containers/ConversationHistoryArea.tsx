@@ -1,11 +1,12 @@
 import * as React from 'react';
 import * as moment from 'moment';
-import StateStore from './../State/StateStore'
+import StateStore from './../State/StateStore';
+import {ServerAPI} from "./../ServerAPI";
 
-//components imports
 import SpeechBubbleWrapper from './SpeechBubbleWrapper';
 import {User} from './../Classess/User';
 import ISpeechBubble from "../Interfaces/SpeechBubble";
+import MyFunctions from "../Classess/UsefullFunctions";
 
 interface IConvoProps {
 }
@@ -25,17 +26,29 @@ class ConversationHistoryArea extends React.Component <IConvoProps,IConvoState> 
 
         this.speechBlock = React.createRef();
         this.currentUser = this.stateStore.get('currentUser');
-        //this.db = new DB.default();
 
         this.state = {
-            speechBubbles : []//this.db.getMessageHistory(this.currentUser,this.stateStore.get('inChatWith')),
+            speechBubbles : []
         };
 
+        this.getMessages();
+
         StateStore.getInstance().subscribe(()=>{
-            this.setState({
-                speechBubbles : []//this.db.getMessageHistory(this.currentUser,this.stateStore.get('inChatWith')),
-            });
+            this.getMessages();
         });
+    }
+
+    getMessages(){
+        ServerAPI.getMessages(this.currentUser.getName(),this.stateStore.get('inChatWith').getName(), this.stateStore.get('inChatWith').getType())
+            .then((messageHistory) => {
+                for (let msg of messageHistory) {
+                    msg.sender = MyFunctions.UserifyOne(msg.sender);
+                    msg.receiver = MyFunctions.UserifyOne(msg.receiver);
+                }
+                this.setState({
+                    speechBubbles : messageHistory
+                });
+            });
     }
 
     componentDidMount() {

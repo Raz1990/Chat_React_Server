@@ -11,5 +11,6 @@ app.get('/', function (req, res) {
 });
 app.use('/users', routes.usersRouter);
 app.use('/groups', routes.groupsRouter);
+app.use('/messages', routes.messagesRouter);
 exports.default = app;
 //# sourceMappingURL=app.js.map

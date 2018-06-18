@@ -4,8 +4,12 @@ export {Group};
 
 class Group implements IChatEntity{
 
-    constructor(private id, private group_name: string, private members: IChatEntity[] = [], private parent?: Group) {
+    constructor(private id, private group_name: string, private members: IChatEntity[] = [], private is_child?: boolean, private parent?: Group) {
 
+    }
+
+    isChild(){
+        return this.is_child;
     }
 
     getId() {

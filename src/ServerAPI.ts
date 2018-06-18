@@ -5,12 +5,35 @@ export class ServerAPI {
         return this.get('/users');
     }
 
+    static async getGroups() {
+        return this.get('/groups');
+    }
+
     static getSingleUser(name: string, pass?: string) {
         const user = {
             name: name,
             pass: pass
         };
         return this.post('/users/login', user);
+    }
+
+    static getMessages(senderName: string, receiverName: string, receiverType: string) {
+        const chat = {
+            senderName: senderName,
+            receiverName: receiverName,
+            receiverType: receiverType
+        };
+        return this.post('/messages/getHistory', chat);
+    }
+
+    static addMessageToAConversation(senderName: string, receiverName: string, message: string, time: string) {
+        const msg = {
+            senderName: senderName,
+            receiverName: receiverName,
+            message: message,
+            time: time
+        };
+        return this.post('/messages/addMessage', msg);
     }
 
     /*static createUser(user) {
