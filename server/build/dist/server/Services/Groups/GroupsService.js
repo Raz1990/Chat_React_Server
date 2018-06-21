@@ -35,8 +35,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var DB = require("../../db/db");
-var db = new DB.default();
+var db_1 = require("../../db/db");
+var db = db_1.default.getInstance();
 function getAllGroups() {
     return new Promise(function (resolve, reject) {
         var result = _getAllGroups();
@@ -51,14 +51,18 @@ function getGroupById(id) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             return [2 /*return*/, new Promise(function (resolve) {
-                    var result = _getGroupById(id);
+                    var result = 1; //COMPLETE db.getUserById(id);
                     resolve(result);
                 })];
         });
     });
 }
 exports.getGroupById = getGroupById;
-function _getGroupById(id) {
-    return id;
+function addGroup(group) {
+    return new Promise(function (resolve, reject) {
+        var result = db.addGroup(group);
+        resolve(result);
+    });
 }
+exports.addGroup = addGroup;
 //# sourceMappingURL=GroupsService.js.map

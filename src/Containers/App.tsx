@@ -8,6 +8,7 @@ import StateStore from "./../State/StateStore";
 import Modal from "./../Components/Modal";
 import {ServerAPI} from "./../ServerAPI";
 import MyFunctions from './../Classess/UsefullFunctions';
+import styles from "./../Styles/styles"
 
 interface IAppProps {
 
@@ -18,15 +19,11 @@ class App extends React.Component<IAppProps,any> {
     constructor(props: IAppProps){
         super(props);
 
-        //const users = db.getAllUsers();
-
         this.state = {
             currentUser: null,
             username: 'Raz',
             password: 'rrr'
         };
-
-        StateStore.getInstance().set('currentUser', this.state.currentUser);
     }
 
     inputChangedHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,39 +82,5 @@ class App extends React.Component<IAppProps,any> {
         );
     }
 }
-
-const styles: { [key: string]: React.CSSProperties } = {
-    modal: {
-        minWidth: '25em'
-    },
-    p: {
-        margin: "0 0 0.5em 0",
-    },
-    label: {
-        display: "inline-block",
-        marginBottom: ".5rem"
-    },
-    input: {
-        display: "block",
-        width: "100%",
-        outline: 'none'
-    },
-    button: {
-        background: '#86BB71',
-        color: 'white',
-        padding: '5px',
-        marginRight: '10px',
-        marginLeft: '10px'
-    },
-    div: {
-        textAlign: 'center'
-    }
-};
-styles.buttonDisabled = {
-    ...styles.button,
-    cursor: 'auto',
-    background: '#DDDDDD',
-    color: '#444753'
-};
 
 export default App;

@@ -1,35 +1,33 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var DB = require("../../db/db");
-var db = new DB.default();
+var db_1 = require("../../db/db");
+var db = db_1.default.getInstance();
 function getUserById(id) {
     return new Promise(function (resolve, reject) {
-        var result = _getUserById(id);
+        var result = db.getUserById(id);
         resolve(result);
     });
 }
 exports.getUserById = getUserById;
-function _getUserById(id) {
-    return db.getUserById(id);
-}
 function getUserByNameXORPassword(user) {
     return new Promise(function (resolve, reject) {
-        var result = _getUserByNameXORPassword(user.name, user.pass);
+        var result = db.getSingleUser(user.name, user.pass);
         resolve(result);
     });
 }
 exports.getUserByNameXORPassword = getUserByNameXORPassword;
-function _getUserByNameXORPassword(name, pass) {
-    return db.getSingleUser(name, pass);
-}
 function getAllUsers() {
     return new Promise(function (resolve, reject) {
-        var result = _getAllUsers();
+        var result = db.getAllUsers();
         resolve(result);
     });
 }
 exports.getAllUsers = getAllUsers;
-function _getAllUsers() {
-    return db.getAllUsers();
+function addUser(user) {
+    return new Promise(function (resolve, reject) {
+        var result = db.addUser(user);
+        resolve(result);
+    });
 }
+exports.addUser = addUser;
 //# sourceMappingURL=UsersService.js.map

@@ -13,6 +13,12 @@ var DB = /** @class */ (function () {
         //this.groups = MyFunctions.Groupify(DB.readFromJson(fileName).groups);
         this.generateMockUpAnswers();
     }
+    DB.getInstance = function () {
+        if (!DB.instance) {
+            DB.instance = new DB();
+        }
+        return DB.instance;
+    };
     DB.readFromJson = function (fileName) {
         var data = "";
         try {
@@ -36,7 +42,12 @@ var DB = /** @class */ (function () {
                 data = outerData;
                 break;
         }
-        fs.writeFileSync(__dirname + "/JSONData/" + fileName + "Data.json", JSON.stringify(data), "UTF-8");
+        try {
+            fs.writeFileSync(__dirname + "/JSONData/" + fileName + "Data.json", JSON.stringify(data), "UTF-8");
+        }
+        catch (e) {
+            console.log('ERROR WRITING TO JSON -> ', e);
+        }
     };
     //static users = TempData.allUsers;
     //static groups = TempData.allGroups;
@@ -82,9 +93,15 @@ var DB = /** @class */ (function () {
         }
         return entity;
     };
-    DB.prototype.addMessageToAConversation = function (senderName, receiverName, content, time) {
+    DB.prototype.addMessageToAConversation = function (senderName, receiverName, type, content, time) {
         var sender = this.getSingleUser(senderName);
-        var receiver = this.getSingleUser(receiverName);
+        var receiver;
+        if (type === 'group') {
+            receiver = this.getSingleGroup(receiverName);
+        }
+        else {
+            receiver = this.getSingleUser(receiverName);
+        }
         return this.addConversation(sender, receiver, content, time, true);
     };
     DB.prototype.addConversation = function (sender, receiver, content, time, real) {
@@ -120,12 +137,12 @@ var DB = /** @class */ (function () {
         }
         return true;
     };
-    DB.prototype.newBubble = function (bubbleId, sender, reciever, content, time) {
+    DB.prototype.newBubble = function (bubbleId, sender, receiver, content, time) {
         return {
             id: bubbleId,
             content: content,
-            sender: sender,
-            receiver: reciever,
+            sender: { id: sender.getId(), name: sender.getName() },
+            receiver: { id: receiver.getId(), name: receiver.getName() },
             timeSent: time
         };
     };
@@ -169,8 +186,10 @@ var DB = /** @class */ (function () {
                 var group = receiver;
                 for (var _i = 0, _a = group.getGroupMembers(); _i < _a.length; _i++) {
                     var groupMember = _a[_i];
-                    if (groupMember.getType() != 'group' && messages[groupMember.getName()][receiver.getName()]) {
-                        convo = convo.concat(messages[groupMember.getName()][receiver.getName()].val);
+                    if (groupMember.getType() != 'group' && messages[groupMember.getName()]) {
+                        if (messages[groupMember.getName()][receiver.getName()]) {
+                            convo = convo.concat(messages[groupMember.getName()][receiver.getName()].val);
+                        }
                     }
                 }
             }
@@ -200,6 +219,19 @@ var DB = /** @class */ (function () {
         }
         // a must be equal to b
         return 0;
+    };
+    DB.prototype.addUser = function (user) {
+        user.id = this.users.length + 1;
+        this.users.push(user);
+        this.writeToJson("Users");
+        return user;
+    };
+    DB.prototype.addGroup = function (group) {
+        group.id = this.groups.length + 1;
+        group.members = [];
+        this.groups.push(group);
+        this.writeToJson("Groups");
+        return group;
     };
     return DB;
 }());

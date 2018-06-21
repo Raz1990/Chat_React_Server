@@ -6,4 +6,4 @@ var messagesRouter = express.Router();
 messagesRouter.post('/getHistory', Controllers.MessagesController.getMessagesHistory);
 messagesRouter.post('/addMessage', Controllers.MessagesController.addMessage);
 exports.default = messagesRouter;
-//# sourceMappingURL=messagesRouter.js.map
+//# sourceMappingURL=MessagesRouter.js.map

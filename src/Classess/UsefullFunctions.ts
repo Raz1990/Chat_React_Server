@@ -58,7 +58,7 @@ class MyFunctions {
     }
 
 
-    //gets an element and gives it the "active" class
+    //gets an element and gives it the "disabled" class
     static makeActive = (element: any) => {
 
         let workingElement = element.target;
@@ -69,14 +69,21 @@ class MyFunctions {
 
         MyFunctions.removeActive();
 
-        //add the active status to the selected element
+        //add the disabled status to the selected element
         workingElement.classList.toggle('active');
 
         let stateStore = StateStore.getInstance();
-        let chattingWith = MyFunctions.getChatEntity(workingElement);
-        stateStore.set('inChatWith', chattingWith);
+        let chattingWith;
 
-        return chattingWith;
+        if (workingElement.classList.contains('noChat')) {
+            chattingWith = null;
+        }
+        else {
+            chattingWith = MyFunctions.getChatEntity(workingElement.innerText);
+        }
+
+        stateStore.set('inChatWith', chattingWith);
+        stateStore.set('chatElement', workingElement);
     };
 
     static getChatEntity(name: string) {
@@ -93,7 +100,7 @@ class MyFunctions {
     }
 
     static removeActive(){
-        //remove active status from any previous active
+        //remove disabled status from any previous disabled
         let currentlyActive = document.getElementsByClassName('active');
         if (currentlyActive.length > 0) {
             currentlyActive[0].classList.toggle('active');
@@ -146,9 +153,9 @@ class MyFunctions {
     }
 
     static getElementParent(element: any) {
-        //classList[3] = childOf_*** (parent group)
+        //classList[4] = childOf_*** (parent group)
         //substring(8) = just the ***
-        if (element.classList[3]) {
+        if (element.classList[4]) {
             const className = element.classList[3].substring(8);
             const parent = document.getElementsByClassName(className)[0];
             return parent;
@@ -195,14 +202,14 @@ class MyFunctions {
 
     static dealWithDown = (currentlyActive: any, liChildren: any, liParent: any) => {
         ///FEATURE
-        //Check if there is a li to active if none are active
+        //Check if there is a li to disabled if none are disabled
         const allLis = document.getElementsByTagName('li');
         const firstLi = allLis[0];
         if (!currentlyActive && firstLi){
             MyFunctions.makeActive(firstLi);
         }
 
-        //if nothing is active, and no li in sight, simply go back
+        //if nothing is disabled, and no li in sight, simply go back
         if (!currentlyActive) {
             return;
         }
@@ -233,10 +240,10 @@ class MyFunctions {
             eleToActive = liChildren[0];
         }
         else {
-            if (liParent) {
+            if(liParent){
                 let parentsChildren = MyFunctions.getElementChildren(liParent);
                 let lastChild = parentsChildren[parentsChildren.length - 1];
-                //if i'm the last active child
+                //if i'm the last disabled child
                 if (parseInt(lastChild.id) === idNow) {
                     //take my parent's id
                     idNow = parseInt(liParent.id);

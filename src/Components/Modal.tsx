@@ -6,6 +6,7 @@ interface IModalProps {
 }
 
 const Modal = (props: IModalProps) => {
+
     return (
         <div style={blackScreenStyle}>
             <div style={{...modalStyle, ...(props.style || {})}}>

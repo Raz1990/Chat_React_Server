@@ -200,3 +200,31 @@ li {
 textarea {
     resize: none;
 }
+
+.adminPanel {
+    border-top: 1px solid black;
+    flex: 0.2;
+    background-color: #77f166;
+}
+
+.buttonsWrapper{
+    text-align: center;
+}
+
+.adminButton {
+    border-radius: 50px;
+    padding: 10px;
+    margin: 10px;
+}
+
+.addButton{
+    background-color: #16dc35;
+}
+
+.deleteButton{
+    background-color: #ff554f;
+}
+
+.updateButton{
+    background-color: #88fffe;
+}

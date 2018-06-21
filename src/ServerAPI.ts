@@ -26,19 +26,32 @@ export class ServerAPI {
         return this.post('/messages/getHistory', chat);
     }
 
-    static addMessageToAConversation(senderName: string, receiverName: string, message: string, time: string) {
+    static addMessageToAConversation(senderName: string, receiverName: string, type: string, message: string, time: string) {
         const msg = {
             senderName: senderName,
             receiverName: receiverName,
+            type: type,
             message: message,
             time: time
         };
         return this.post('/messages/addMessage', msg);
     }
 
-    /*static createUser(user) {
-        return this.post('/users', user);
-    }*/
+    static createUser(user) {
+        return this.post('/users/addUser', user);
+    }
+
+    static createGroup(group) {
+        return this.post('/groups/addGroup', group);
+    }
+
+    static deleteUser(user) {
+        return this.delete('/users/deleteUser', user);
+    }
+
+    static deleteGroup(group) {
+        return this.delete('/groups/deleteGroup', group);
+    }
 
     static get(url) {
         return fetch(this.baseUrl + url)
@@ -48,6 +61,17 @@ export class ServerAPI {
     static post(url, body) {
         return fetch(this.baseUrl + url, {
             method: 'POST',
+            body: JSON.stringify(body),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => res.json());
+    }
+
+    static delete(url, body) {
+        return fetch(this.baseUrl + url, {
+            method: 'DELETE',
             body: JSON.stringify(body),
             headers: {
                 'Content-Type': 'application/json'

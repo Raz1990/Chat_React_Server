@@ -40,7 +40,7 @@ class RightArea extends React.Component<IRightProps,IRightSTATE> {
     }
 
     componentWillUnmount(){
-        //StateStore.getInstance().unsubscribe(this.listenerIndex);
+        StateStore.getInstance().unsubscribe(this.listenerIndex);
     }
 
     removeActive = () => {

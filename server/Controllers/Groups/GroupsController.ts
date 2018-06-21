@@ -10,3 +10,13 @@ export async function getAllGroups(req , res) {
         res.send('Bad request', e);
     }
 }
+
+export async function addGroup(req , res) {
+    try {
+        const group = await services.GroupsService.addGroup(req.body);
+        res.json(group);
+    }
+    catch (e) {
+        res.send('Bad request');
+    }
+}

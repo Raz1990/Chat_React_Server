@@ -1,36 +1,42 @@
-import * as DB from "../../db/db";
+import DB from "../../db/db";
 
-const db = new DB.default();
+const db = DB.getInstance();
 
 export function getUserById(id: number) {
     return new Promise((resolve, reject) => {
-        const result = _getUserById(id);
+        const result = db.getUserById(id);
         resolve(result);
     });
-}
-
-function _getUserById(id) {
-    return db.getUserById(id);
 }
 
 export function getUserByNameXORPassword(user) {
     return new Promise((resolve, reject) => {
-        const result = _getUserByNameXORPassword(user.name, user.pass);
+        const result = db.getSingleUser(user.name, user.pass);
         resolve(result);
     });
-}
-
-function _getUserByNameXORPassword(name: string, pass?: string) {
-    return db.getSingleUser(name, pass);
 }
 
 export function getAllUsers() {
     return new Promise((resolve, reject) => {
-        const result = _getAllUsers();
+        const result = db.getAllUsers();
         resolve(result);
     });
 }
 
-function _getAllUsers() {
-    return db.getAllUsers();
+export function addUser(user) {
+    return new Promise((resolve, reject) => {
+        const result = db.addUser(user);
+        resolve(result);
+    });
 }
+
+export function deleteUser(user) {
+    return new Promise((resolve, reject) => {
+        const result = db.deleteUser(user);
+        resolve(result);
+    });
+}
+
+
+
+

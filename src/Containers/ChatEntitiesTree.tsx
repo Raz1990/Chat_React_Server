@@ -8,6 +8,7 @@ import ICanChat from "../Interfaces/ChatEntity";
 import MyFunctions from './../Classess/UsefullFunctions';
 import {User} from './../Classess/User';
 import {Group} from "../Classess/Group";
+import AdminPanel from './AdminPanel';
 
 interface ITreeState {
     currentUser : User;
@@ -39,7 +40,7 @@ class ChatEntitiesTree extends React.Component<ITreeProps,ITreeState> {
         });
     }
 
-    singleLiCreate(item : ICanChat, idValue? : number, childElement? : any, parentLiClassName? : string, repeatSpaces? : number){
+    singleLiCreate(item : ICanChat, idValue? : number, childElement? : any, parentLiClassName? : string, repeatSpaces? : number, chatable?: boolean){
 
         childElement = childElement || false;
 
@@ -65,6 +66,10 @@ class ChatEntitiesTree extends React.Component<ITreeProps,ITreeState> {
             li.className += 'childElement childOf_' + parentLiClassName + ' isHidden ';
         }
 
+        if (!chatable){
+            li.className += 'noChat ';
+        }
+
         return li;
 
     }
@@ -81,15 +86,24 @@ class ChatEntitiesTree extends React.Component<ITreeProps,ITreeState> {
 
         for (let item of items) {
 
+            let chatable = true;
+
             if (item.getType() === 'group'){
                 const group_item = item as Group;
                 const is_child = group_item.isChild();
                 if (is_child && (idValue > 1 && idValue < items.length)){
                     continue;
                 }
+
+                if (item.getItems().length > 0) {
+                    //if the group holds a group, it must mean it holds groups only, and no users, thus it cannot be chattaed with
+                    if(item.getItems()[0].getType() === 'group') {
+                        chatable = false;
+                    }
+                }
             }
 
-            liList.push(this.singleLiCreate(item, idValue, child, parentLiClassName, repeatSpaces));
+            liList.push(this.singleLiCreate(item, idValue, child, parentLiClassName, repeatSpaces, chatable));
 
             //if it's a group with items in it
             if (item.getItems().length > 0) {
@@ -101,15 +115,10 @@ class ChatEntitiesTree extends React.Component<ITreeProps,ITreeState> {
 
 
         liList = liList.map((item, idx) => {
-            return <li style={item.style} onClick={this.makeActive} onDoubleClick={MyFunctions.decideVisibility} className={item.className} id={item.id} key={idx}> {item.innerHTML} </li>;
+            return <li style={item.style} onClick={MyFunctions.makeActive} onDoubleClick={MyFunctions.decideVisibility} className={item.className} id={item.id} key={idx}> {item.innerHTML} </li>;
         });
 
         return liList;
-    }
-
-    makeActive(element){
-        const chattingWith = MyFunctions.makeActive(element);
-        StateStore.getInstance().set('inChatWith', chattingWith);
     }
 
     componentDidMount() {
@@ -119,9 +128,10 @@ class ChatEntitiesTree extends React.Component<ITreeProps,ITreeState> {
     public render() {
 
         let entitiesTree = [];
-
+        let adminPanel = <div/>;
         if (this.state.currentUser){
             entitiesTree = this.createListItems(this.state.entities);
+            adminPanel = <AdminPanel/>;
         }
 
         return (
@@ -134,6 +144,8 @@ class ChatEntitiesTree extends React.Component<ITreeProps,ITreeState> {
                     {entitiesTree}
 
                 </ul>
+
+                {adminPanel}
 
             </div>
         );

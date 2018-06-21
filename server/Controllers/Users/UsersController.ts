@@ -29,3 +29,25 @@ export async function getAllUsers(req , res) {
         res.send('Bad request');
     }
 }
+
+export async function addUser(req , res) {
+    try {
+        const user = await services.UsersService.addUser(req.body);
+        res.json(user);
+    }
+    catch (e) {
+        res.send('Bad request');
+    }
+}
+
+export async function deleteUser(req , res) {
+    try {
+        const user = await services.UsersService.deleteUser(req.body);
+        res.json(user);
+    }
+    catch (e) {
+        res.send('Bad request');
+    }
+}
+
+

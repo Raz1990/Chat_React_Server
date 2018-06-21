@@ -1,6 +1,6 @@
-import * as DB from "../../db/db";
+import DB from "../../db/db";
 
-const db = new DB.default();
+const db = DB.getInstance();
 
 export function getMessagesHistory(chat) {
     return new Promise((resolve, reject) => {
@@ -21,5 +21,5 @@ export function addMessage(msg) {
 }
 
 function _addMessage(msg) {
-    return db.addMessageToAConversation(msg.senderName, msg.receiverName, msg.message, msg.time);
+    return db.addMessageToAConversation(msg.senderName, msg.receiverName, msg.type, msg.message, msg.time);
 }

@@ -9,9 +9,13 @@ usersRouter.get('/:id', Controllers.UsersController.getUserById);
 
 usersRouter.post('/login', Controllers.UsersController.getUserByNameXORPassword);
 
-usersRouter.get('/:name', (req, res) => {
+usersRouter.post('/addUser', Controllers.UsersController.addUser);
+
+usersRouter.delete('/deleteUser', Controllers.UsersController.deleteUser);
+
+/*usersRouter.get('/:name', (req, res) => {
     const name = req.params.name;
     res.send('user name: ', name);
-});
+});*/
 
 export default usersRouter;

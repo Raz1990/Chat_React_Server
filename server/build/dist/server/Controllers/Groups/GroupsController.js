@@ -59,4 +59,26 @@ function getAllGroups(req, res) {
     });
 }
 exports.getAllGroups = getAllGroups;
+function addGroup(req, res) {
+    return __awaiter(this, void 0, void 0, function () {
+        var group, e_2;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, services.GroupsService.addGroup(req.body)];
+                case 1:
+                    group = _a.sent();
+                    res.json(group);
+                    return [3 /*break*/, 3];
+                case 2:
+                    e_2 = _a.sent();
+                    res.send('Bad request');
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.addGroup = addGroup;
 //# sourceMappingURL=GroupsController.js.map

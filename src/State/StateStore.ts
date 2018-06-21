@@ -9,9 +9,6 @@ interface IStateSore {
 
 class StateStore implements IStateSore{
 
-    users;
-    groups;
-    entities;
     listeners: Function[];
 
     constructor(){
@@ -20,16 +17,13 @@ class StateStore implements IStateSore{
         ServerAPI.getUsers()
             .then((users) => {
                 users = MyFunctions.Userify(users);
-                this.users = users;
-                this.state["allUsers"] = this.users;
+                this.state["allUsers"] = users;
 
                 ServerAPI.getGroups()
                     .then((groups) => {
                         groups = MyFunctions.Groupify(groups);
-                        this.groups = groups;
-                        this.state["allGroups"] = this.groups;
-                        this.entities = this.createEntities();
-                        this.state["allEntities"] = this.entities;
+                        this.state["allGroups"] = groups;
+                        this.state["allEntities"] = this.createEntities();
                     });
             });
     }
@@ -37,17 +31,18 @@ class StateStore implements IStateSore{
     createEntities() {
         let entityArray = [];
 
-        entityArray = entityArray.concat(this.groups).concat(this.users);
+        entityArray = entityArray.concat(this.state["allGroups"]).concat(this.state["allUsers"]);
 
         return entityArray;
     }
 
     state: {} = {
-        allUsers: this.users,
-        allGroups: this.groups,
-        allEntities: this.entities,
+        allUsers: null,
+        allGroups: null,
+        allEntities: null,
         currentUser: null,
-        inChatWith: null
+        inChatWith: null,
+        chatElement: null
     };
 
     subscribe(listener: any){

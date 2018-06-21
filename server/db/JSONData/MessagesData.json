@@ -7,15 +7,11 @@
           "content": "שלום",
           "sender": {
             "id": 1,
-            "user_name": "Raz",
-            "password": "rrr",
-            "age": 27
+            "name": "Raz"
           },
           "receiver": {
             "id": 2,
-            "user_name": "Moshe",
-            "password": "holy_moses",
-            "age": 28
+            "name": "Moshe"
           },
           "timeSent": "10:00:00"
         },
@@ -24,15 +20,11 @@
           "content": "הכל אחלה ומגניב",
           "sender": {
             "id": 1,
-            "user_name": "Raz",
-            "password": "rrr",
-            "age": 27
+            "name": "Raz"
           },
           "receiver": {
             "id": 2,
-            "user_name": "Moshe",
-            "password": "holy_moses",
-            "age": 28
+            "name": "Moshe"
           },
           "timeSent": "10:03:00"
         }
@@ -47,15 +39,11 @@
         "content": "מה נשמע צדיק?",
         "sender": {
           "id": 2,
-          "user_name": "Moshe",
-          "password": "holy_moses",
-          "age": 28
+          "name": "Moshe"
         },
         "receiver": {
           "id": 1,
-          "user_name": "Raz",
-          "password": "rrr",
-          "age": 27
+          "name": "Raz"
         },
         "timeSent": "10:02:00"
       }

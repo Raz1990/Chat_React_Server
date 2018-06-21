@@ -1,6 +1,6 @@
-import * as DB from "../../db/db";
+import DB from "../../db/db";
 
-const db = new DB.default();
+const db = DB.getInstance();
 
 export function getAllGroups() {
     return new Promise((resolve, reject) => {
@@ -15,12 +15,15 @@ function _getAllGroups() {
 
 export async function getGroupById(id: number) {
     return new Promise((resolve) => {
-        const result = _getGroupById(id);
-
+        const result = 1; //COMPLETE db.getUserById(id);
         resolve(result);
     });
 }
 
-function _getGroupById(id) {
-    return id;
+export function addGroup(group) {
+    return new Promise((resolve, reject) => {
+        const result = db.addGroup(group);
+        resolve(result);
+    });
 }
+

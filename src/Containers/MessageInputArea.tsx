@@ -61,7 +61,7 @@ class MessageInputArea extends React.Component<{},IMessageInputAreaState> {
             message = currentUser.getName() + ': ' + message;
         }
 
-        ServerAPI.addMessageToAConversation(currentUser.getName(),receiver.getName(),message, moment().format("HH:mm:ss"))
+        ServerAPI.addMessageToAConversation(currentUser.getName(),receiver.getName(), receiver.getType(), message, moment().format("HH:mm:ss"))
             .then((done) => {
                 if (done) {
                     StateStore.getInstance().onStoreChanged();

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var DB = require("../../db/db");
-var db = new DB.default();
+var db_1 = require("../../db/db");
+var db = db_1.default.getInstance();
 function getMessagesHistory(chat) {
     return new Promise(function (resolve, reject) {
         var result = _getMessagesHistory(chat);
@@ -20,6 +20,6 @@ function addMessage(msg) {
 }
 exports.addMessage = addMessage;
 function _addMessage(msg) {
-    return db.addMessageToAConversation(msg.senderName, msg.receiverName, msg.message, msg.time);
+    return db.addMessageToAConversation(msg.senderName, msg.receiverName, msg.type, msg.message, msg.time);
 }
 //# sourceMappingURL=MessagesService.js.map

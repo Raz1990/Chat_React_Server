@@ -6,7 +6,6 @@ import {ServerAPI} from "./../ServerAPI";
 import SpeechBubbleWrapper from './SpeechBubbleWrapper';
 import {User} from './../Classess/User';
 import ISpeechBubble from "../Interfaces/SpeechBubble";
-import MyFunctions from "../Classess/UsefullFunctions";
 
 interface IConvoProps {
 }
@@ -39,12 +38,15 @@ class ConversationHistoryArea extends React.Component <IConvoProps,IConvoState> 
     }
 
     getMessages(){
+        if (!this.stateStore.get('inChatWith')){
+            return;
+        }
         ServerAPI.getMessages(this.currentUser.getName(),this.stateStore.get('inChatWith').getName(), this.stateStore.get('inChatWith').getType())
             .then((messageHistory) => {
-                for (let msg of messageHistory) {
-                    msg.sender = MyFunctions.UserifyOne(msg.sender);
-                    msg.receiver = MyFunctions.UserifyOne(msg.receiver);
-                }
+                /*for (let msg of messageHistory) {
+                    msg.sender = MyFunctions.UserifyOne(msg.sender.name);
+                    msg.receiver = MyFunctions.UserifyOne(msg.receiver.name);
+                }*/
                 this.setState({
                     speechBubbles : messageHistory
                 });
@@ -67,8 +69,8 @@ class ConversationHistoryArea extends React.Component <IConvoProps,IConvoState> 
                 <SpeechBubbleWrapper
                           key={idx}
                           content={bubble.content}
-                          sender={bubble.sender}
-                          receiver={bubble.receiver}
+                          sender={bubble.sender.name}
+                          receiver={bubble.receiver.name}
                           timeSent={bubble.timeSent}
                 />
             )

@@ -4,7 +4,7 @@ interface IMyButtonPROPS {
     contentSTR: string,
     className?: string,
     callbackFunc?: any
-    disabled: boolean
+    disabled?: boolean
 }
 
 class MyButton extends React.Component<IMyButtonPROPS,{}> {

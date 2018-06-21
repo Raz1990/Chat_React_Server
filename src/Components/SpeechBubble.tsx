@@ -20,7 +20,7 @@ class SpeechBubble extends React.Component<ISpeechBubble,{}> {
         let chosenClass = 'speechBubble ';
 
         //determine color and position (left / right)
-        if (this.currentUser.getName() == this.props.sender.getName()) {
+        if (this.currentUser.getName() == this.props.sender) {
             chosenClass += 'mine ';
         }
         else{

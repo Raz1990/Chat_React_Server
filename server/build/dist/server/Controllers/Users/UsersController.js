@@ -102,4 +102,26 @@ function getAllUsers(req, res) {
     });
 }
 exports.getAllUsers = getAllUsers;
+function addUser(req, res) {
+    return __awaiter(this, void 0, void 0, function () {
+        var user, e_4;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, services.UsersService.addUser(req.body)];
+                case 1:
+                    user = _a.sent();
+                    res.json(user);
+                    return [3 /*break*/, 3];
+                case 2:
+                    e_4 = _a.sent();
+                    res.send('Bad request');
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.addUser = addUser;
 //# sourceMappingURL=UsersController.js.map

@@ -20,6 +20,16 @@ class DB {
         this.generateMockUpAnswers();
     }
 
+    static instance: DB;
+
+    static getInstance(){
+        if (!DB.instance){
+            DB.instance = new DB();
+        }
+
+        return DB.instance;
+    }
+
     static readFromJson(fileName: string) {
         let data = "";
         try {
@@ -44,7 +54,12 @@ class DB {
                 data = outerData;
                 break;
         }
-        fs.writeFileSync(`${__dirname}/JSONData/${fileName}Data.json`, JSON.stringify(data),"UTF-8");
+        try {
+            fs.writeFileSync(`${__dirname}/JSONData/${fileName}Data.json`, JSON.stringify(data), "UTF-8");
+        }
+        catch (e) {
+            console.log('ERROR WRITING TO JSON -> ', e);
+        }
     }
 
     //static users = TempData.allUsers;
@@ -101,9 +116,16 @@ class DB {
         return entity;
     }
 
-    addMessageToAConversation(senderName: string, receiverName: string, content: string, time: string){
+    addMessageToAConversation(senderName: string, receiverName: string, type: string, content: string, time: string){
         const sender = this.getSingleUser(senderName);
-        const receiver = this.getSingleUser(receiverName);
+        let receiver;
+        if (type === 'group'){
+            receiver = this.getSingleGroup(receiverName);
+        }
+        else {
+            receiver = this.getSingleUser(receiverName);
+        }
+
         return this.addConversation(sender, receiver, content, time,true);
     }
 
@@ -146,12 +168,12 @@ class DB {
         return true;
     }
 
-    newBubble(bubbleId: Number, sender: ICanChat, reciever: ICanChat, content: string, time: string){
+    newBubble(bubbleId: Number, sender: ICanChat, receiver: ICanChat, content: string, time: string){
         return {
             id : bubbleId,
             content: content,
-            sender: sender,
-            receiver: reciever,
+            sender: {id: sender.getId(), name: sender.getName()},
+            receiver: {id: receiver.getId(), name: receiver.getName()},
             timeSent: time
         };
     }
@@ -205,8 +227,10 @@ class DB {
             if (receiver.getType() === 'group') {
                 let group = receiver as Group;
                 for (let groupMember of group.getGroupMembers()){
-                    if (groupMember.getType() != 'group' && messages[groupMember.getName()][receiver.getName()]) {
-                        convo = convo.concat(messages[groupMember.getName()][receiver.getName()].val);
+                    if (groupMember.getType() != 'group' && messages[groupMember.getName()]) {
+                        if (messages[groupMember.getName()][receiver.getName()]) {
+                            convo = convo.concat(messages[groupMember.getName()][receiver.getName()].val);
+                        }
                     }
                 }
             }
@@ -239,6 +263,41 @@ class DB {
         }
         // a must be equal to b
         return 0;
+    }
+
+    // adding
+
+    addUser(user){
+        user.id = this.users.length+1;
+        this.users.push(user);
+        this.writeToJson("Users");
+        return user;
+    }
+
+    addGroup(group){
+        group.id = this.groups.length+1;
+        group.members = [];
+        this.groups.push(group);
+        this.writeToJson("Groups");
+        return group;
+    }
+
+    // delete
+
+    deleteUser(user){
+        const userToDelete = this.getSingleUser(user.user_name);
+        const index = this.users.indexOf(userToDelete);
+        this.users.splice(index, 1);
+        this.writeToJson("Users");
+        return user;
+    }
+
+    deleteGroup(group){
+        group.id = this.groups.length+1;
+        group.members = [];
+        this.groups.push(group);
+        this.writeToJson("Groups");
+        return group;
     }
 }
 

@@ -19,7 +19,7 @@ class SpeechBubbleWrapper extends React.Component<ISpeechBubble,{}> {
     public determineClass() {
         let chosenClass = 'speechWrapper ';
         //if the sender of the message is the same as the user who is logged in
-        if (this.currentUser.getName() != this.props.sender.getName()) {
+        if (this.currentUser.getName() != this.props.sender) {
             chosenClass += 'wrapperNotMySpeech';
         }
         return chosenClass;
