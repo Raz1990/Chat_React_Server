@@ -30,4 +30,18 @@ function addUser(user) {
     });
 }
 exports.addUser = addUser;
+function deleteUser(user) {
+    return new Promise(function (resolve, reject) {
+        var result = db.deleteUser(user);
+        resolve(result);
+    });
+}
+exports.deleteUser = deleteUser;
+function updateUser(user) {
+    return new Promise(function (resolve, reject) {
+        var result = db.updateUser(user);
+        resolve(result);
+    });
+}
+exports.updateUser = updateUser;
 //# sourceMappingURL=UsersService.js.map

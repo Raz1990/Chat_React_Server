@@ -5,5 +5,8 @@ var Controllers = require("../Controllers");
 var groupsRouter = express.Router();
 groupsRouter.get('/', Controllers.GroupsController.getAllGroups);
 groupsRouter.post('/addGroup', Controllers.GroupsController.addGroup);
+groupsRouter.delete('/deleteGroup', Controllers.GroupsController.deleteGroup);
+groupsRouter.post('/moveGroups', Controllers.GroupsController.moveGroups);
+groupsRouter.post('/addUserToGroup', Controllers.GroupsController.addUserToGroup);
 exports.default = groupsRouter;
 //# sourceMappingURL=GroupsRouter.js.map

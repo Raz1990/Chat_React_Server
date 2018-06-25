@@ -12,6 +12,7 @@
       {"id":1,"user_name":"Raz","password":"rrr","age":27},
       {"id":2,"user_name":"Moshe","password":"holy_moses","age":28},
       {"id":3,"user_name":"Itay","password":"CrackingCracks9001","age":29}
-    ]}
+    ]},
+    {"id":3,"group_name":"Temp","is_child": false, "parent": null, "members":[]}
   ]
 }

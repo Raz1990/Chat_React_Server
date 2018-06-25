@@ -37,6 +37,15 @@ export function deleteUser(user) {
     });
 }
 
+export function updateUser(user) {
+    return new Promise((resolve, reject) => {
+        const result = db.updateUser(user);
+        resolve(result);
+    });
+}
+
+
+
 
 
 

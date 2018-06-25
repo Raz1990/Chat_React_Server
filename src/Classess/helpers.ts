@@ -82,18 +82,37 @@ class MyFunctions {
             chattingWith = MyFunctions.getChatEntity(workingElement.innerText);
         }
 
+        if (chattingWith!= null){
+            if (chattingWith.members){
+            chattingWith = MyFunctions.Groupify([chattingWith]).find(o => o.group_name === chattingWith.group_name);
+            }
+            else {
+                    chattingWith = MyFunctions.UserifyOne(chattingWith);
+                }
+        }
+
+
         stateStore.set('inChatWith', chattingWith);
         stateStore.set('chatElement', workingElement);
     };
+
+    static getUserOrGroup(object){
+        if (object.members){
+            return this.Groupify([object])[0];
+        }
+        else {
+            return this.UserifyOne(object);
+        }
+    }
 
     static getChatEntity(name: string) {
         let entity;
         const users = StateStore.getInstance().get('allUsers');
         const groups = StateStore.getInstance().get('allGroups');
 
-        entity = users.find(o => o.getName() === name);
+        entity = users.find(o => o.user_name === name);
         if (!entity){
-            entity = groups.find(o => o.getName() === name);
+            entity = groups.find(o => o.group_name === name);
         }
 
         return entity;

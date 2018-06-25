@@ -108,7 +108,7 @@ class AddingPanel extends React.Component<IAddProps,IAddState> {
         }
     }
 
-    Add = () => {
+    add = () => {
         const type = this.state.selectedType;
         let objectToSend : IUser | IGroup;
 
@@ -144,7 +144,7 @@ class AddingPanel extends React.Component<IAddProps,IAddState> {
                 </div>
                 {divSelected}
                 <div className={"buttonsWrapper"}>
-                    <button style={canSubmit ? this.props.styles.button : this.props.styles.buttonDisabled} disabled={!canSubmit} onClick={this.Add}>Add</button>
+                    <button style={canSubmit ? this.props.styles.button : this.props.styles.buttonDisabled} disabled={!canSubmit} onClick={this.add}>Add</button>
                     <button style={this.props.styles.cancelButton} onClick={this.props.cancelCallback}>Cancel</button>
                 </div>
             </Modal>

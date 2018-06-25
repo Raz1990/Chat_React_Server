@@ -1,23 +1,29 @@
 import * as fs from 'fs';
 
-import ICanChat from "../Models/Interfaces/ChatEntity";
-import {Group} from "../../src/Classess/Group";
-import MyFunctions from "../Models/Classess/UsefullFunctions";
+import ICanChat from "./../Models/Interfaces/ChatEntity";
+import {Group} from "./../Models/Classess/Group";
+import {User} from "./../Models/Classess/User";
+import MyFunctions from "./../Models/Classess/UsefullFunctions";
 
 class DB {
 
-    users: ICanChat[];
-    groups: ICanChat[];
+    users : User[];
+    groups : Group[];
     replies = {};
 
     constructor() {
+        this.updateDB();
+        this.generateMockUpAnswers();
+    }
+
+    updateDB() {
         let fileName = "Users";
         this.users = DB.readFromJson(fileName).users;
-        //this.users = MyFunctions.Userify(DB.readFromJson(fileName).users);
         fileName = "Groups";
         this.groups = DB.readFromJson(fileName).groups;
+
+        //this.users = MyFunctions.Userify(DB.readFromJson(fileName).users);
         //this.groups = MyFunctions.Groupify(DB.readFromJson(fileName).groups);
-        this.generateMockUpAnswers();
     }
 
     static instance: DB;
@@ -45,10 +51,10 @@ class DB {
         let data;
         switch (fileName) {
             case "Users":
-                data = this.users;
+                data = {users: this.users};
                 break;
             case "Groups":
-                data = this.groups;
+                data = {groups: this.groups};
                 break;
             default:
                 data = outerData;
@@ -268,6 +274,10 @@ class DB {
     // adding
 
     addUser(user){
+        if (this.users.find(o => o.getName() === user.user_name)){
+            return "";
+        }
+
         user.id = this.users.length+1;
         this.users.push(user);
         this.writeToJson("Users");
@@ -275,6 +285,10 @@ class DB {
     }
 
     addGroup(group){
+        if (this.groups.find(o => o.getName() === group.group_name)){
+            return "";
+        }
+
         group.id = this.groups.length+1;
         group.members = [];
         this.groups.push(group);
@@ -286,18 +300,120 @@ class DB {
 
     deleteUser(user){
         const userToDelete = this.getSingleUser(user.user_name);
+
+        //first, check if the user is in a group(s)
+        //if any are found, they will be removed
+        this.deleteUserInGroups(userToDelete);
+        this.writeToJson("Groups");
+
         const index = this.users.indexOf(userToDelete);
         this.users.splice(index, 1);
         this.writeToJson("Users");
         return user;
     }
 
+    deleteUserInSingleGroup(userToSearch, group) {
+
+        //get the index of the user in the group
+        const index = group.members.indexOf(userToSearch);
+
+        //remove the user in the correct index from the group
+        group.members.splice(index, 1);
+    }
+
+    deleteUserInGroups(userToSearch, group?) {
+
+        //if group is not provided, default to beginning
+        group = group || this.groups[0];
+
+        for (const subGroup of group.members){
+            //if a group has groups within it
+            if (subGroup.members.length > 0) {
+                this.deleteUserInGroups(userToSearch, subGroup);
+            }
+            else if (subGroup.members.find(o => o.user_name === userToSearch.user_name)) {
+                this.deleteUserInSingleGroup(userToSearch,subGroup);
+            }
+            //otherwise, user is not in the group, and cannot be removed
+        }
+    }
+
     deleteGroup(group){
-        group.id = this.groups.length+1;
-        group.members = [];
-        this.groups.push(group);
+        const groupToDelete = this.getSingleGroup(group.group_name);
+        const index = this.groups.indexOf(groupToDelete);
+        this.groups.splice(index, 1);
         this.writeToJson("Groups");
         return group;
+    }
+
+    // update
+
+    updateUser(user) {
+        let myUser;
+        try {
+            myUser = this.users.find(o => o.user_name === user.user_name);
+        } catch (e) {
+            console.log(e);
+        }
+        myUser.password = user.password;
+        myUser.age = user.age;
+        this.writeToJson("Users");
+        this.updateDB();
+        return this.users;
+    }
+
+    updateGroup(group){
+        let myGroup;
+        try {
+            myGroup = this.groups.find(o => o.group_name === group.group_name);
+        } catch (e) {
+            console.log(e);
+        }
+        myGroup.group_name = group.group_name;
+        this.writeToJson("Groups");
+        this.updateDB();
+        return this.groups;
+    }
+
+    moveGroups(host, moving){
+        let hoster, mover;
+        try {
+            hoster = this.groups.find(o => o.group_name === host);
+            mover = this.groups.find(o => o.group_name === moving);
+        } catch (e) {
+            console.log(e);
+        }
+
+        mover.parent = hoster.group_name;
+        mover.is_child = true;
+
+        hoster.members.push(mover);
+
+        this.writeToJson("Groups");
+        return this.groups;
+    }
+
+    addUserToGroup(groupName, userName){
+        let myGroup;
+        try {
+            myGroup = this.groups.find(o => o.group_name === groupName);
+        } catch (e) {
+            console.log(e);
+        }
+        myGroup.members.push(this.getSingleUser(userName));
+
+        //update the info on other groups
+        //find the parent group
+        const parent = this.groups.find(o => o.group_name === myGroup.parent);
+
+        //find the sub group within the parent
+        let subGroup = parent.members.find(o => o.group_name === groupName);
+
+        subGroup.members = myGroup.members;
+
+        this.writeToJson("Groups");
+        this.updateDB();
+        return this.groups;
     }
 }
 

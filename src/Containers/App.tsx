@@ -7,7 +7,7 @@ import RightArea from './RightArea';
 import StateStore from "./../State/StateStore";
 import Modal from "./../Components/Modal";
 import {ServerAPI} from "./../ServerAPI";
-import MyFunctions from './../Classess/UsefullFunctions';
+import MyFunctions from '../Classess/helpers';
 import styles from "./../Styles/styles"
 
 interface IAppProps {

@@ -1,5 +1,4 @@
 import {ServerAPI} from "./../ServerAPI";
-import MyFunctions from "../Classess/UsefullFunctions";
 
 interface IStateSore {
     state: {};
@@ -16,12 +15,10 @@ class StateStore implements IStateSore{
 
         ServerAPI.getUsers()
             .then((users) => {
-                users = MyFunctions.Userify(users);
                 this.state["allUsers"] = users;
 
                 ServerAPI.getGroups()
                     .then((groups) => {
-                        groups = MyFunctions.Groupify(groups);
                         this.state["allGroups"] = groups;
                         this.state["allEntities"] = this.createEntities();
                     });

@@ -3,11 +3,11 @@ import * as React from 'react';
 import MyButton from "../Components/MyButton";
 import AddingPanel from "../Components/AddingPanel";
 import DeletingPanel from "../Components/DeletingPanel";
+import UpdatingPanel from "../Components/UpdatingPanel";
 import styles from "./../Styles/styles";
 import {ServerAPI} from "../ServerAPI";
 import StateStore from "../State/StateStore";
-import MyFunctions from "../Classess/UsefullFunctions";
-//import MyFunctions from "../Classess/UsefullFunctions";
+import MyFunctions from "../Classess/helpers";
 
 interface IPanelState {
     panel: string
@@ -67,7 +67,7 @@ class AdminPanel extends React.Component<IPanelProps,IPanelState> {
         }
 
         switch (action.target.innerText){
-            case "Add":
+            case "add":
                 this.toggleModal("add");
                 break;
             case "Remove":
@@ -84,26 +84,24 @@ class AdminPanel extends React.Component<IPanelProps,IPanelState> {
     };
 
     updatePanel = (type: string) => {
-        this.toggleModal("delete");
+        this.toggleModal("update");
 
     };
 
     addingSomething = (object, type) => {
+        const state = StateStore.getInstance();
         if (type === 'user'){
             ServerAPI.createUser(object)
                 .then((currentUser) => {
                 if (currentUser){
-                    currentUser = MyFunctions.UserifyOne(currentUser);
-                    alert('added ' + currentUser.getName() + " successfully");
-
-                    const state = StateStore.getInstance();
+                    alert('added ' + currentUser.user_name + " successfully");
 
                     let currentUsers = state.get("allUsers");
                     currentUsers.push(currentUser);
                     state.set("allUsers", currentUsers);
                     state.set("allEntities", StateStore.getInstance().createEntities());
 
-                    state.onStoreChanged();
+                    //state.onStoreChanged();
 
                     if (state.get('chatElement')){
                         MyFunctions.makeActive(state.get('chatElement'));
@@ -118,17 +116,15 @@ class AdminPanel extends React.Component<IPanelProps,IPanelState> {
             ServerAPI.createGroup(object)
                 .then((currentGroup) => {
                     if (currentGroup){
-                        currentGroup = MyFunctions.Groupify([currentGroup])[0];
-                        alert('added ' + currentGroup.getName() + " successfully");
-
-                        const state = StateStore.getInstance();
+                        //currentGroup = MyFunctions.Groupify([currentGroup])[0];
+                        alert('added ' + currentGroup.group_name + " successfully");
 
                         let currentGroups = state.get("allGroups");
                         currentGroups.push(currentGroup);
                         state.set("allGroups", currentGroups);
                         state.set("allEntities", StateStore.getInstance().createEntities());
 
-                        state.onStoreChanged();
+                        //state.onStoreChanged();
 
                         if (state.get('chatElement')){
                             MyFunctions.makeActive(state.get('chatElement'));
@@ -142,15 +138,28 @@ class AdminPanel extends React.Component<IPanelProps,IPanelState> {
         this.cancelModal();
     };
 
-    deletingSomething = (object, type) => {
+    deletingSomething = () => {
+        const state = StateStore.getInstance();
+        const object = MyFunctions.getChatEntity(state.get('chatElement').innerText);
+        let type;
+        if (object.members) {
+            type = "group";
+        }
+        else {
+            type = "user";
+        }
+
         if (type === 'user'){
             ServerAPI.deleteUser(object)
                 .then((currentUser) => {
                     if (currentUser){
-                        currentUser = MyFunctions.UserifyOne(currentUser);
-                        alert('deleted ' + currentUser.getName() + " successfully");
+                        //currentUser = MyFunctions.UserifyOne(currentUser);
+                        alert('deleted ' + currentUser.user_name + " successfully");
 
-                        const state = StateStore.getInstance();
+                        if (state.get('chatElement')){
+                            state.set('inChatWith',null);
+                            state.set('chatElement',null);
+                        }
 
                         let currentUsers = state.get("allUsers");
                         const index = currentUsers.indexOf(currentUser);
@@ -159,11 +168,7 @@ class AdminPanel extends React.Component<IPanelProps,IPanelState> {
                         state.set("allUsers", currentUsers);
                         state.set("allEntities", StateStore.getInstance().createEntities());
 
-                        state.onStoreChanged();
-
-                        if (state.get('chatElement')){
-                            state.set('chatElement',null);
-                        }
+                        //state.onStoreChanged();
                     }
                     else {
                         alert('Cant delete!');
@@ -171,29 +176,104 @@ class AdminPanel extends React.Component<IPanelProps,IPanelState> {
                 });
         }
         else {
-            /*ServerAPI.deleteGroup(object)
+            ServerAPI.deleteGroup(object)
                 .then((currentGroup) => {
                     if (currentGroup){
-                        currentGroup = MyFunctions.Groupify([currentGroup])[0];
-                        alert('added ' + currentGroup.getName() + " successfully");
+                        //currentGroup = MyFunctions.Groupify([currentGroup])[0];
+                        alert('deleted ' + currentGroup.group_name + " successfully");
 
-                        const state = StateStore.getInstance();
+                        if (state.get('chatElement')){
+                            state.set('inChatWith',null);
+                            state.set('chatElement',null);
+                        }
 
                         let currentGroups = state.get("allGroups");
-                        currentGroups.push(currentGroup);
+                        const index = currentGroups.indexOf(currentGroup);
+                        currentGroups.splice(index, 1);
+
                         state.set("allGroups", currentGroups);
                         state.set("allEntities", StateStore.getInstance().createEntities());
 
-                        state.onStoreChanged();
-
-                        if (state.get('chatElement')){
-                            MyFunctions.makeActive(state.get('chatElement'));
-                        }
+                        //state.onStoreChanged();
                     }
                     else {
-                        alert('Cant add!');
+                        alert('Cant delete!');
                     }
-                });*/
+                });
+        }
+        this.cancelModal();
+    };
+
+    updateSomething = (object, type) => {
+        const state = StateStore.getInstance();
+        if (type === 'user'){
+            ServerAPI.updateUser(object)
+                .then((currentUsers) => {
+                    if (currentUsers){
+                        alert("updated successfully!");
+                        state.set("allUsers", currentUsers);
+                        state.set("allEntities", StateStore.getInstance().createEntities());
+                    }
+                    else {
+                        alert('Cant update!');
+                    }
+                });
+        }
+        else {
+            switch (object.action){
+                case "updateName":
+                    ServerAPI.updateGroup(object)
+                        .then((currentGroup) => {
+                            if (currentGroup){
+
+                            }
+                            else {
+                                alert('Cant update!');
+                            }
+                        });
+                    break;
+                case "addGroupToMe":
+                    ServerAPI.addGroupToGroup(object.whoParent, object.movingGroup)
+                        .then((currentGroups) => {
+                            if (currentGroups){
+                                alert("updated successfully!");
+                                state.set("allGroups", currentGroups);
+                                state.set("allEntities", StateStore.getInstance().createEntities());
+                            }
+                            else {
+                                alert('Cant move!');
+                            }
+                        });
+                    break;
+                case "moveMeToGroup":
+                    ServerAPI.addGroupToGroup(object.whoParent, object.movingGroup)
+                        .then((currentGroups) => {
+                            if (currentGroups){
+                                alert("updated successfully!");
+                                state.set('chatEntity', null);
+                                state.set('inChatWith', null);
+                                state.set("allGroups", currentGroups);
+                                state.set("allEntities", StateStore.getInstance().createEntities());
+                            }
+                            else {
+                                alert('Cant move!');
+                            }
+                        });
+                    break;
+                case "addUserToMe":
+                    ServerAPI.addUserToGroup(object.group_name, object.addedUser)
+                        .then((currentGroups) => {
+                            if (currentGroups){
+                                alert("updated successfully!");
+                                state.set("allGroups", currentGroups);
+                                state.set("allEntities", StateStore.getInstance().createEntities());
+                            }
+                            else {
+                                alert('Cant move!');
+                            }
+                        });
+                    break;
+            }
         }
         this.cancelModal();
     };
@@ -215,11 +295,15 @@ class AdminPanel extends React.Component<IPanelProps,IPanelState> {
             case "delete":
                 modal = <DeletingPanel styles={styles} cancelCallback={this.cancelModal} submitCallback={this.deletingSomething}/>;
                 break;
+            case "update":
+                let workingObject = MyFunctions.getUserOrGroup(MyFunctions.getChatEntity(StateStore.getInstance().get('chatElement').innerText));
+                modal = <UpdatingPanel styles={styles} updateObject={workingObject} groups={StateStore.getInstance().get("allGroups")} users={StateStore.getInstance().get("allUsers")} cancelCallback={this.cancelModal} submitCallback={this.updateSomething}/>;
+                break;
         }
 
         return (
         <div className={'adminPanel'}>
-            <MyButton contentSTR={"Add"} callbackFunc={this.panelDistributor} disabled={false} className={"adminButton addButton"}/>
+            <MyButton contentSTR={"add"} callbackFunc={this.panelDistributor} disabled={false} className={"adminButton addButton"}/>
             <MyButton contentSTR={"Remove"} callbackFunc={this.panelDistributor} disabled={this.state.disabled} className={"adminButton deleteButton"}/>
             <MyButton contentSTR={"Update"} callbackFunc={this.panelDistributor} disabled={this.state.disabled} className={"adminButton updateButton"}/>
 

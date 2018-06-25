@@ -50,4 +50,16 @@ export async function deleteUser(req , res) {
     }
 }
 
+export async function updateUser(req , res) {
+    try {
+        const user = await services.UsersService.updateUser(req.body);
+        res.json(user);
+    }
+    catch (e) {
+        res.send('Bad request');
+    }
+}
+
+
+
 

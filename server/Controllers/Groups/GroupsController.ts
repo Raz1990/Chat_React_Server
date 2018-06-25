@@ -20,3 +20,33 @@ export async function addGroup(req , res) {
         res.send('Bad request');
     }
 }
+
+export async function moveGroups(req , res) {
+    try {
+        const group = await services.GroupsService.moveGroups(req.body);
+        res.json(group);
+    }
+    catch (e) {
+        res.send('Bad request');
+    }
+}
+
+export async function addUserToGroup(req , res) {
+    try {
+        const group = await services.GroupsService.addUserToGroup(req.body);
+        res.json(group);
+    }
+    catch (e) {
+        res.send('Bad request');
+    }
+}
+
+export async function deleteGroup(req , res) {
+    try {
+        const group = await services.GroupsService.deleteGroup(req.body);
+        res.json(group);
+    }
+    catch (e) {
+        res.send('Bad request');
+    }
+}

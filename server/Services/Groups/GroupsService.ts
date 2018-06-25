@@ -27,3 +27,23 @@ export function addGroup(group) {
     });
 }
 
+export function addUserToGroup(addingObject) {
+    return new Promise((resolve, reject) => {
+        const result = db.addUserToGroup(addingObject.groupName, addingObject.userName);
+        resolve(result);
+    });
+}
+
+export function moveGroups(groups) {
+    return new Promise((resolve, reject) => {
+        const result = db.moveGroups(groups.host, groups.mover);
+        resolve(result);
+    });
+}
+
+export function deleteGroup(group) {
+    return new Promise((resolve, reject) => {
+        const result = db.deleteGroup(group);
+        resolve(result);
+    });
+}

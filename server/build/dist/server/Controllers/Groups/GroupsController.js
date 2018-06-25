@@ -81,4 +81,70 @@ function addGroup(req, res) {
     });
 }
 exports.addGroup = addGroup;
+function moveGroups(req, res) {
+    return __awaiter(this, void 0, void 0, function () {
+        var group, e_3;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, services.GroupsService.moveGroups(req.body)];
+                case 1:
+                    group = _a.sent();
+                    res.json(group);
+                    return [3 /*break*/, 3];
+                case 2:
+                    e_3 = _a.sent();
+                    res.send('Bad request');
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.moveGroups = moveGroups;
+function addUserToGroup(req, res) {
+    return __awaiter(this, void 0, void 0, function () {
+        var group, e_4;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, services.GroupsService.addUserToGroup(req.body)];
+                case 1:
+                    group = _a.sent();
+                    res.json(group);
+                    return [3 /*break*/, 3];
+                case 2:
+                    e_4 = _a.sent();
+                    res.send('Bad request');
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.addUserToGroup = addUserToGroup;
+function deleteGroup(req, res) {
+    return __awaiter(this, void 0, void 0, function () {
+        var group, e_5;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, services.GroupsService.deleteGroup(req.body)];
+                case 1:
+                    group = _a.sent();
+                    res.json(group);
+                    return [3 /*break*/, 3];
+                case 2:
+                    e_5 = _a.sent();
+                    res.send('Bad request');
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.deleteGroup = deleteGroup;
 //# sourceMappingURL=GroupsController.js.map

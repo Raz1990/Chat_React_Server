@@ -53,6 +53,30 @@ export class ServerAPI {
         return this.delete('/groups/deleteGroup', group);
     }
 
+    static updateUser(user) {
+        return this.put('/users/updateUser', user);
+    }
+
+    static updateGroup(group) {
+        return this.post('/groups/addGroup', group);
+    }
+
+    static addGroupToGroup(host, mover) {
+        const groups = {
+            host,
+            mover
+        };
+        return this.post('/groups/moveGroups', groups);
+    }
+
+    static addUserToGroup(groupName, userName) {
+        const addingObject = {
+            groupName,
+            userName
+        };
+        return this.post('/groups/addUserToGroup', addingObject);
+    }
+
     static get(url) {
         return fetch(this.baseUrl + url)
             .then(res => res.json());
@@ -61,6 +85,17 @@ export class ServerAPI {
     static post(url, body) {
         return fetch(this.baseUrl + url, {
             method: 'POST',
+            body: JSON.stringify(body),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => res.json());
+    }
+
+    static put(url, body) {
+        return fetch(this.baseUrl + url, {
+            method: 'PUT',
             body: JSON.stringify(body),
             headers: {
                 'Content-Type': 'application/json'

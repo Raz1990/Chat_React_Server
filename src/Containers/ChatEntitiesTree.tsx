@@ -5,7 +5,7 @@ import * as React from 'react';
 import Header from './Header';
 import StateStore from "../State/StateStore";
 import ICanChat from "../Interfaces/ChatEntity";
-import MyFunctions from './../Classess/UsefullFunctions';
+import MyFunctions from '../Classess/helpers';
 import {User} from './../Classess/User';
 import {Group} from "../Classess/Group";
 import AdminPanel from './AdminPanel';
@@ -21,6 +21,7 @@ interface ITreeProps {
 class ChatEntitiesTree extends React.Component<ITreeProps,ITreeState> {
 
     ulTree: any;
+    dumbEntities;
 
     constructor(props: ITreeProps){
         super(props);
@@ -29,15 +30,31 @@ class ChatEntitiesTree extends React.Component<ITreeProps,ITreeState> {
 
         this.state = {
             currentUser : StateStore.getInstance().get('currentUser'),
-            entities : StateStore.getInstance().get('allEntities')
+            entities : this.getEntities()
         };
 
         StateStore.getInstance().subscribe(()=>{
             this.setState({
                 currentUser : StateStore.getInstance().get('currentUser'),
-                entities : StateStore.getInstance().get('allEntities')
+                entities : this.getEntities()
             });
         });
+    }
+
+    getEntities(){
+        let dumbEntities = StateStore.getInstance().get('allEntities');
+        let smartEntities = [];
+        if (!dumbEntities) return [];
+        for (let entity of dumbEntities){
+            //if it has members = it is a group
+            if (entity.members){
+                smartEntities.push(...MyFunctions.Groupify([entity]));
+            }
+            else {
+                smartEntities.push(MyFunctions.UserifyOne(entity));
+            }
+        }
+        return smartEntities;
     }
 
     singleLiCreate(item : ICanChat, idValue? : number, childElement? : any, parentLiClassName? : string, repeatSpaces? : number, chatable?: boolean){
@@ -91,7 +108,7 @@ class ChatEntitiesTree extends React.Component<ITreeProps,ITreeState> {
             if (item.getType() === 'group'){
                 const group_item = item as Group;
                 const is_child = group_item.isChild();
-                if (is_child && (idValue > 1 && idValue < items.length)){
+                if (is_child && (idValue >= 1 && idValue < items.length)){
                     continue;
                 }
 

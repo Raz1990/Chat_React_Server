@@ -65,4 +65,25 @@ function addGroup(group) {
     });
 }
 exports.addGroup = addGroup;
+function addUserToGroup(addingObject) {
+    return new Promise(function (resolve, reject) {
+        var result = db.addUserToGroup(addingObject.groupName, addingObject.userName);
+        resolve(result);
+    });
+}
+exports.addUserToGroup = addUserToGroup;
+function moveGroups(groups) {
+    return new Promise(function (resolve, reject) {
+        var result = db.moveGroups(groups.host, groups.mover);
+        resolve(result);
+    });
+}
+exports.moveGroups = moveGroups;
+function deleteGroup(group) {
+    return new Promise(function (resolve, reject) {
+        var result = db.deleteGroup(group);
+        resolve(result);
+    });
+}
+exports.deleteGroup = deleteGroup;
 //# sourceMappingURL=GroupsService.js.map

@@ -1,18 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs = require("fs");
-var UsefullFunctions_1 = require("../Models/Classess/UsefullFunctions");
+var UsefullFunctions_1 = require("./../Models/Classess/UsefullFunctions");
 var DB = /** @class */ (function () {
     function DB() {
         this.replies = {};
-        var fileName = "Users";
-        this.users = DB.readFromJson(fileName).users;
-        //this.users = MyFunctions.Userify(DB.readFromJson(fileName).users);
-        fileName = "Groups";
-        this.groups = DB.readFromJson(fileName).groups;
-        //this.groups = MyFunctions.Groupify(DB.readFromJson(fileName).groups);
+        this.updateDB();
         this.generateMockUpAnswers();
     }
+    DB.prototype.updateDB = function () {
+        var fileName = "Users";
+        this.users = DB.readFromJson(fileName).users;
+        fileName = "Groups";
+        this.groups = DB.readFromJson(fileName).groups;
+        //this.users = MyFunctions.Userify(DB.readFromJson(fileName).users);
+        //this.groups = MyFunctions.Groupify(DB.readFromJson(fileName).groups);
+    };
     DB.getInstance = function () {
         if (!DB.instance) {
             DB.instance = new DB();
@@ -33,10 +36,10 @@ var DB = /** @class */ (function () {
         var data;
         switch (fileName) {
             case "Users":
-                data = this.users;
+                data = { users: this.users };
                 break;
             case "Groups":
-                data = this.groups;
+                data = { groups: this.groups };
                 break;
             default:
                 data = outerData;
@@ -220,18 +223,126 @@ var DB = /** @class */ (function () {
         // a must be equal to b
         return 0;
     };
+    // adding
     DB.prototype.addUser = function (user) {
+        if (this.users.find(function (o) { return o.getName() === user.user_name; })) {
+            return "";
+        }
         user.id = this.users.length + 1;
         this.users.push(user);
         this.writeToJson("Users");
         return user;
     };
     DB.prototype.addGroup = function (group) {
+        if (this.groups.find(function (o) { return o.getName() === group.group_name; })) {
+            return "";
+        }
         group.id = this.groups.length + 1;
         group.members = [];
         this.groups.push(group);
         this.writeToJson("Groups");
         return group;
+    };
+    // delete
+    DB.prototype.deleteUser = function (user) {
+        var userToDelete = this.getSingleUser(user.user_name);
+        //first, check if the user is in a group(s)
+        //if any are found, they will be removed
+        this.deleteUserInGroups(userToDelete);
+        this.writeToJson("Groups");
+        var index = this.users.indexOf(userToDelete);
+        this.users.splice(index, 1);
+        this.writeToJson("Users");
+        return user;
+    };
+    DB.prototype.deleteUserInSingleGroup = function (userToSearch, group) {
+        //get the index of the user in the group
+        var index = group.members.indexOf(userToSearch);
+        //remove the user in the correct index from the group
+        group.members.splice(index, 1);
+    };
+    DB.prototype.deleteUserInGroups = function (userToSearch, group) {
+        //if group is not provided, default to beginning
+        group = group || this.groups[0];
+        for (var _i = 0, _a = group.members; _i < _a.length; _i++) {
+            var subGroup = _a[_i];
+            //if a group has groups within it
+            if (subGroup.members.length > 0) {
+                this.deleteUserInGroups(userToSearch, subGroup);
+            }
+            else if (subGroup.members.find(function (o) { return o.user_name === userToSearch.user_name; })) {
+                this.deleteUserInSingleGroup(userToSearch, subGroup);
+            }
+        }
+    };
+    DB.prototype.deleteGroup = function (group) {
+        var groupToDelete = this.getSingleGroup(group.group_name);
+        var index = this.groups.indexOf(groupToDelete);
+        this.groups.splice(index, 1);
+        this.writeToJson("Groups");
+        return group;
+    };
+    // update
+    DB.prototype.updateUser = function (user) {
+        var myUser;
+        try {
+            myUser = this.users.find(function (o) { return o.user_name === user.user_name; });
+        }
+        catch (e) {
+            console.log(e);
+        }
+        myUser.password = user.password;
+        myUser.age = user.age;
+        this.writeToJson("Users");
+        this.updateDB();
+        return this.users;
+    };
+    DB.prototype.updateGroup = function (group) {
+        var myGroup;
+        try {
+            myGroup = this.groups.find(function (o) { return o.group_name === group.group_name; });
+        }
+        catch (e) {
+            console.log(e);
+        }
+        myGroup.group_name = group.group_name;
+        this.writeToJson("Groups");
+        this.updateDB();
+        return this.groups;
+    };
+    DB.prototype.moveGroups = function (host, moving) {
+        var hoster, mover;
+        try {
+            hoster = this.groups.find(function (o) { return o.group_name === host; });
+            mover = this.groups.find(function (o) { return o.group_name === moving; });
+        }
+        catch (e) {
+            console.log(e);
+        }
+        mover.parent = hoster.group_name;
+        mover.is_child = true;
+        hoster.members.push(mover);
+        this.writeToJson("Groups");
+        return this.groups;
+    };
+    DB.prototype.addUserToGroup = function (groupName, userName) {
+        var myGroup;
+        try {
+            myGroup = this.groups.find(function (o) { return o.group_name === groupName; });
+        }
+        catch (e) {
+            console.log(e);
+        }
+        myGroup.members.push(this.getSingleUser(userName));
+        //update the info on other groups
+        //find the parent group
+        var parent = this.groups.find(function (o) { return o.group_name === myGroup.parent; });
+        //find the sub group within the parent
+        var subGroup = parent.members.find(function (o) { return o.group_name === groupName; });
+        subGroup.members = myGroup.members;
+        this.writeToJson("Groups");
+        this.updateDB();
+        return this.groups;
     };
     return DB;
 }());

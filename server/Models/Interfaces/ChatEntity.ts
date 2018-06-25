@@ -5,5 +5,7 @@ export default interface ICanChat {
     getType(): string
     setName(val: string): void
     getInfoString(): string
-    getItems?(): ICanChat[]
+    getItems?(): ICanChat[],
+    members?,
+    group_name?
 }

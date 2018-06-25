@@ -9,7 +9,7 @@ import {User} from './../Classess/User';
 import StateStore from "../State/StateStore";
 import ICanChat from "./../Interfaces/ChatEntity";
 
-import MyFunctions from './../Classess/UsefullFunctions';
+import MyFunctions from '../Classess/helpers';
 
 interface IRightProps {
 }
