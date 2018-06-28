@@ -27,9 +27,23 @@ export function addGroup(group) {
     });
 }
 
+export function updateGroup(group) {
+    return new Promise((resolve, reject) => {
+        const result = db.updateGroup(group);
+        resolve(result);
+    });
+}
+
 export function addUserToGroup(addingObject) {
     return new Promise((resolve, reject) => {
         const result = db.addUserToGroup(addingObject.groupName, addingObject.userName);
+        resolve(result);
+    });
+}
+
+export function removeUserFromGroup(removingObject) {
+    return new Promise((resolve, reject) => {
+        const result = db.removeUserFromGroup(removingObject.groupName, removingObject.userName);
         resolve(result);
     });
 }
@@ -43,7 +57,7 @@ export function moveGroups(groups) {
 
 export function deleteGroup(group) {
     return new Promise((resolve, reject) => {
-        const result = db.deleteGroup(group);
+        const result = db.deleteGroup(group,group.flatten);
         resolve(result);
     });
 }

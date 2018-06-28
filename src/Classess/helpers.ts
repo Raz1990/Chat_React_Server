@@ -1,9 +1,11 @@
 import {User} from "./User";
 import {Group} from "./Group";
 import StateStore from "./../State/StateStore";
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:4000');
 
 class MyFunctions {
-
     static Userify(fakeUsers){
         let usersARR = [];
         for (const fakeUser of fakeUsers){
@@ -11,6 +13,18 @@ class MyFunctions {
         }
         return usersARR;
     }
+
+    static startTheIO = () => {
+        socket.on('chat', () => {
+            StateStore.getInstance().onStoreChanged();
+        });
+    };
+
+    static _io = MyFunctions.startTheIO();
+
+    static emitTheIO = (text) => {
+        socket.emit(text);
+    };
 
     static UserifyOne(fakeUser){
         return new User(fakeUser.id,fakeUser.user_name,fakeUser.password,fakeUser.age);
@@ -42,6 +56,7 @@ class MyFunctions {
     }
 
     static groupParentify(groupsARR){
+        //fix
         for (const parentGroup of groupsARR){
             for (const childGroup of parentGroup.getGroupMembers()){
                 if (childGroup.getType() === 'group'){
@@ -84,7 +99,7 @@ class MyFunctions {
 
         if (chattingWith!= null){
             if (chattingWith.members){
-            chattingWith = MyFunctions.Groupify([chattingWith]).find(o => o.group_name === chattingWith.group_name);
+                chattingWith = MyFunctions.Groupify([chattingWith]).find(o => o.group_name === chattingWith.group_name);
             }
             else {
                     chattingWith = MyFunctions.UserifyOne(chattingWith);

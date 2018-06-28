@@ -5,6 +5,7 @@ import StateStore from './../State/StateStore'
 //components imports
 import MyButton from './../Components/MyButton';
 import {ServerAPI} from "../ServerAPI";
+import MyFunctions from "../Classess/helpers";
 
 interface IMessageInputAreaState {
     message: string
@@ -64,7 +65,8 @@ class MessageInputArea extends React.Component<{},IMessageInputAreaState> {
         ServerAPI.addMessageToAConversation(currentUser.getName(),receiver.getName(), receiver.getType(), message, moment().format("HH:mm:ss"))
             .then((done) => {
                 if (done) {
-                    StateStore.getInstance().onStoreChanged();
+                    MyFunctions.emitTheIO('chat');
+                    //StateStore.getInstance().onStoreChanged();
                 }
             });
     };

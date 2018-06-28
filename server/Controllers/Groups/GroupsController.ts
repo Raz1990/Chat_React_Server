@@ -21,6 +21,16 @@ export async function addGroup(req , res) {
     }
 }
 
+export async function updateGroup(req , res) {
+    try {
+        const groups = await services.GroupsService.updateGroup(req.body);
+        res.json(groups);
+    }
+    catch (e) {
+        res.send('Bad request');
+    }
+}
+
 export async function moveGroups(req , res) {
     try {
         const group = await services.GroupsService.moveGroups(req.body);
@@ -34,6 +44,16 @@ export async function moveGroups(req , res) {
 export async function addUserToGroup(req , res) {
     try {
         const group = await services.GroupsService.addUserToGroup(req.body);
+        res.json(group);
+    }
+    catch (e) {
+        res.send('Bad request');
+    }
+}
+
+export async function removeUserFromGroup(req , res) {
+    try {
+        const group = await services.GroupsService.removeUserFromGroup(req.body);
         res.json(group);
     }
     catch (e) {

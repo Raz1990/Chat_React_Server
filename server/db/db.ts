@@ -281,11 +281,11 @@ class DB {
         user.id = this.users.length+1;
         this.users.push(user);
         this.writeToJson("Users");
-        return user;
+        return this.users;
     }
 
     addGroup(group){
-        if (this.groups.find(o => o.getName() === group.group_name)){
+        if (this.groups.find(o => o.group_name === group.group_name)){
             return "";
         }
 
@@ -293,13 +293,13 @@ class DB {
         group.members = [];
         this.groups.push(group);
         this.writeToJson("Groups");
-        return group;
+        return this.groups;
     }
 
     // delete
 
     deleteUser(user){
-        const userToDelete = this.getSingleUser(user.user_name);
+        const userToDelete = this.users.find(o => o.user_name === user.user_name);
 
         //first, check if the user is in a group(s)
         //if any are found, they will be removed
@@ -309,41 +309,80 @@ class DB {
         const index = this.users.indexOf(userToDelete);
         this.users.splice(index, 1);
         this.writeToJson("Users");
-        return user;
+        return this.users;
     }
 
     deleteUserInSingleGroup(userToSearch, group) {
 
+        let user_to_del = group.members.find(o => o.user_name === userToSearch.user_name);
+
         //get the index of the user in the group
-        const index = group.members.indexOf(userToSearch);
+        const index = group.members.indexOf(user_to_del);
 
         //remove the user in the correct index from the group
         group.members.splice(index, 1);
     }
 
     deleteUserInGroups(userToSearch, group?) {
-
         //if group is not provided, default to beginning
         group = group || this.groups[0];
 
         for (const subGroup of group.members){
             //if a group has groups within it
             if (subGroup.members.length > 0) {
-                this.deleteUserInGroups(userToSearch, subGroup);
+                if (subGroup.members[0].type === 'group') {
+                    this.deleteUserInGroups(userToSearch, subGroup);
+                }
             }
-            else if (subGroup.members.find(o => o.user_name === userToSearch.user_name)) {
+            if (subGroup.members.find(o => o.user_name === userToSearch.user_name)) {
                 this.deleteUserInSingleGroup(userToSearch,subGroup);
             }
             //otherwise, user is not in the group, and cannot be removed
         }
     }
 
-    deleteGroup(group){
-        const groupToDelete = this.getSingleGroup(group.group_name);
-        const index = this.groups.indexOf(groupToDelete);
+    deleteGroup(group, flatten?){
+        const groupToDelete = this.groups.find(o => (<any>o.group_name) === group.group_name);
+        if (flatten) {
+            this.flattenGroup(group);
+        }
+        else {
+            const groupToDeleteParent = this.groups.find(o => (<any>o.group_name) === group.parent);
+            let childOfParent = groupToDeleteParent.members.find(o => o.group_name === group.group_name);
+            let index = groupToDeleteParent.members.indexOf(childOfParent);
+            groupToDeleteParent.members.splice(index, 1);
+        }
+        let index = this.groups.indexOf(groupToDelete);
         this.groups.splice(index, 1);
+
         this.writeToJson("Groups");
-        return group;
+        return this.groups;
+    }
+
+    removeUserFromGroup(groupName, userName){
+        let userToDelete;
+        let groupToDeleteFrom;
+        let parentName;
+        do {
+            userToDelete = this.users.find(o => o.user_name === userName);
+            groupToDeleteFrom = this.groups.find(o => o.group_name === groupName);
+            parentName = groupToDeleteFrom.parent;
+            if (parentName) {
+                let parent = this.groups.find(o => (<any>o.group_name) === parentName);
+                let childOfParent = parent.members.find(o => o.group_name === groupName);
+                this.deleteUserInSingleGroup(userToDelete, childOfParent);
+            }
+        }while(parentName);
+        this.deleteUserInSingleGroup(userToDelete,groupToDeleteFrom);
+        this.writeToJson("Groups");
+        return this.groups;
+    }
+
+    flattenGroup(groupToFlatten){
+        const groupToDeleteParent = this.groups.find(o => (<any>o.group_name) === groupToFlatten.parent);
+        if (groupToDeleteParent.members.length === 1) {
+            groupToDeleteParent.members = groupToFlatten.members;
+        }
     }
 
     // update
@@ -365,10 +404,39 @@ class DB {
     updateGroup(group){
         let myGroup;
         try {
-            myGroup = this.groups.find(o => o.group_name === group.group_name);
+            myGroup = this.groups.find(o => o.id === group.id);
         } catch (e) {
             console.log(e);
         }
+
+        //update the message array with the new group name
+        const messages = DB.readFromJson("Messages");
+        for (let senderKey in messages){
+            if (senderKey === myGroup.group_name) {
+                senderKey = group.group_name;
+            }
+            let sender = messages[senderKey];
+            for (let receiverKey in sender) {
+                if (receiverKey === myGroup.group_name) {
+                    sender[group.group_name] = sender[receiverKey];
+                    sender[receiverKey] = null;
+                }
+            }
+        }
+        this.writeToJson("Messages", messages);
+
+        //if the group has a parent
+        let parentName: string = (<any>myGroup).parent;
+        if (parentName){
+            let parent = this.groups.find(o => o.group_name == parentName);
+            let subGroupInOriginalParent = parent.members.find(o => o.group_name === group.original_group_name);
+            const groupToUpdate = this.getSingleGroup(subGroupInOriginalParent.group_name);
+            groupToUpdate.group_name = group.group_name;
+            groupToUpdate.parent = group.group_name;
+            const index = this.groups.indexOf(groupToUpdate);
+            parent.members.splice(index, 1,groupToUpdate);
+        }
+
         myGroup.group_name = group.group_name;
         this.writeToJson("Groups");
         this.updateDB();
@@ -384,11 +452,20 @@ class DB {
             console.log(e);
         }
 
+        //if the mover already has a parent
+        if (mover.parent){
+            //delete the group from the members of it's parent
+            let moverParent = this.groups.find(o => o.group_name === mover.parent);
+            let subGroupInOriginalParent = moverParent.members.find(o => o.group_name === mover.group_name);
+            const groupToDelete = this.getSingleGroup(subGroupInOriginalParent.group_name);
+            const index = this.groups.indexOf(groupToDelete);
+            moverParent.members.splice(index, 1);
+        }
+
+        //move it to the other parent
         mover.parent = hoster.group_name;
         mover.is_child = true;
-
         hoster.members.push(mover);
-
         this.writeToJson("Groups");
         return this.groups;
     }
@@ -406,10 +483,11 @@ class DB {
         //find the parent group
         const parent = this.groups.find(o => o.group_name === myGroup.parent);
 
-        //find the sub group within the parent
-        let subGroup = parent.members.find(o => o.group_name === groupName);
-
-        subGroup.members = myGroup.members;
+        if (parent) {
+            //find the sub group within the parent
+            let subGroup = parent.members.find(o => o.group_name === groupName);
+            subGroup.members = myGroup.members;
+        }
 
         this.writeToJson("Groups");
         this.updateDB();

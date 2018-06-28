@@ -58,7 +58,7 @@ export class ServerAPI {
     }
 
     static updateGroup(group) {
-        return this.post('/groups/addGroup', group);
+        return this.post('/groups/updateGroup', group);
     }
 
     static addGroupToGroup(host, mover) {
@@ -75,6 +75,14 @@ export class ServerAPI {
             userName
         };
         return this.post('/groups/addUserToGroup', addingObject);
+    }
+
+    static removeUserFromGroup(groupName, userName) {
+        const removingObject = {
+            groupName,
+            userName
+        };
+        return this.post('/groups/removeUserFromGroup', removingObject);
     }
 
     static get(url) {

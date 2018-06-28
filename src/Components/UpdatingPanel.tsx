@@ -20,7 +20,8 @@ interface IUpdateState {
     canSubmit : boolean,
     movingGroup,
     input: string,
-    addedUser
+    addedUser,
+    removedUser
 }
 
 class UpdatingPanel extends React.Component<IUpdateProps,IUpdateState> {
@@ -46,6 +47,7 @@ class UpdatingPanel extends React.Component<IUpdateProps,IUpdateState> {
             canSubmit : true,
             movingGroup : "",
             addedUser : "",
+            removedUser: "",
             input: ""
         };
     }
@@ -108,6 +110,12 @@ class UpdatingPanel extends React.Component<IUpdateProps,IUpdateState> {
         });
     };
 
+    SelectedUserToDeleteHandler = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        this.setState({
+            removedUser: event.target.value
+        });
+    };
+
     getEligibleGroups = () => {
         let okGroups = [];
         let shouldContinue = false;
@@ -144,7 +152,6 @@ class UpdatingPanel extends React.Component<IUpdateProps,IUpdateState> {
                 return true;
             }
         }
-
         return false;
     };
 
@@ -169,7 +176,7 @@ class UpdatingPanel extends React.Component<IUpdateProps,IUpdateState> {
                     <div>
                         <p style={this.props.styles.p}>
                             <label style={this.props.styles.label} htmlFor="group_name">Name</label>
-                            <input style={this.props.styles.input} type="text" name="group_name" value={this.props.updateObject.getName()} onChange={this.inputChangedHandler} />
+                            <input style={this.props.styles.input} type="text" name="group_name" value={this.state.group_name} onChange={this.inputChangedHandler} />
                         </p>
                     </div>
                 );
@@ -193,10 +200,27 @@ class UpdatingPanel extends React.Component<IUpdateProps,IUpdateState> {
                     </div>
                 );
             }
+            else if (this.state.selectedAction === "5"){
+
+                let okUsers = this.props.updateObject.getGroupMembers();
+
+                okUsers = okUsers.map((item, idx) => {
+                    return (<option key={idx} value={item.user_name}>{item.user_name}</option>);
+                });
+
+                interaction = (
+                    <div>
+                        <p style={this.props.styles.p}>
+                            <label style={this.props.styles.label} htmlFor="group_name">{this.props.updateObject.getName()}</label>
+                        </p>
+                        <select style={this.props.styles.input} name="UpdateType" onChange={this.SelectedUserToDeleteHandler}>
+                            {okUsers}
+                        </select>
+                    </div>
+                );
+            }
             else {
-
                 let okGroups = this.getEligibleGroups();
-
                 okGroups = okGroups.map((item, idx) => {
                     return (<option key={idx} value={item.group_name}>{item.group_name}</option>);
                 });
@@ -240,31 +264,42 @@ class UpdatingPanel extends React.Component<IUpdateProps,IUpdateState> {
         let objectToSend;
         let movingGroup;
         let addedUser;
-
-        if (!this.state.movingGroup) {
-            movingGroup = this.getEligibleGroups()[0].group_name;
-        }
-        else {
-            movingGroup = this.state.movingGroup.group_name;
-        }
-
-        if (!this.state.addedUser) {
-            addedUser = this.getEligibleUsers()[0].user_name;
-        }
-        else {
-            addedUser = this.state.addedUser;
-        }
+        let removedUser;
 
         if (this.objectType === 'group'){
+            if (!this.state.movingGroup) {
+                movingGroup = this.getEligibleGroups()[0].group_name;
+            }
+            else {
+                movingGroup = this.state.movingGroup;
+            }
+
+            if (!this.state.addedUser) {
+                addedUser = this.getEligibleUsers()[0].user_name;
+            }
+            else {
+                addedUser = this.state.addedUser;
+            }
+
+            if (!this.state.removedUser) {
+                removedUser = this.props.updateObject.getGroupMembers()[0].user_name;
+            }
+            else {
+                removedUser = this.state.removedUser;
+            }
+
             switch (this.state.selectedAction) {
                 case "1":
                     objectToSend = {
+                        id: this.props.updateObject.getId(),
                         group_name: this.state.group_name,
+                        original_group_name:this.props.updateObject.getName(),
                         action: "updateName"
                     };
                     break;
                 case "2":
                     objectToSend = {
+                        id: this.props.updateObject.getId(),
                         group_name: this.state.group_name,
                         action: "addGroupToMe",
                         movingGroup: movingGroup,
@@ -273,6 +308,7 @@ class UpdatingPanel extends React.Component<IUpdateProps,IUpdateState> {
                     break;
                 case "3":
                     objectToSend = {
+                        id: this.props.updateObject.getId(),
                         group_name: this.state.group_name,
                         action: "moveMeToGroup",
                         movingGroup: this.props.updateObject.getName(),
@@ -281,9 +317,18 @@ class UpdatingPanel extends React.Component<IUpdateProps,IUpdateState> {
                     break;
                 case "4":
                     objectToSend = {
+                        id: this.props.updateObject.getId(),
                         group_name: this.state.group_name,
                         action: "addUserToMe",
                         addedUser: addedUser
+                    };
+                    break;
+                case "5":
+                    objectToSend = {
+                        id: this.props.updateObject.getId(),
+                        group_name: this.state.group_name,
+                        action: "removeUserFromMe",
+                        removedUser: removedUser
                     };
                     break;
             }
@@ -305,6 +350,9 @@ class UpdatingPanel extends React.Component<IUpdateProps,IUpdateState> {
             updateOptions = [{id:1, action:"update name"}, {id:2, action:`add existing group to ${this.props.updateObject.getName()}`}, {id:3, action:`move ${this.props.updateObject.getName()} to another group`}];
             if (!this.groupHasGroups()){
                 updateOptions.push({id:4, action:`add a user to ${this.props.updateObject.getName()}`});
+                if (this.props.updateObject.getGroupMembers().length > 0){
+                    updateOptions.push({id:5, action:`remove a user from ${this.props.updateObject.getName()}`});
+                }
             }
         }
         else {

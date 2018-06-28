@@ -65,6 +65,13 @@ function addGroup(group) {
     });
 }
 exports.addGroup = addGroup;
+function updateGroup(group) {
+    return new Promise(function (resolve, reject) {
+        var result = db.updateGroup(group);
+        resolve(result);
+    });
+}
+exports.updateGroup = updateGroup;
 function addUserToGroup(addingObject) {
     return new Promise(function (resolve, reject) {
         var result = db.addUserToGroup(addingObject.groupName, addingObject.userName);
@@ -72,6 +79,13 @@ function addUserToGroup(addingObject) {
     });
 }
 exports.addUserToGroup = addUserToGroup;
+function removeUserFromGroup(removingObject) {
+    return new Promise(function (resolve, reject) {
+        var result = db.removeUserFromGroup(removingObject.groupName, removingObject.userName);
+        resolve(result);
+    });
+}
+exports.removeUserFromGroup = removeUserFromGroup;
 function moveGroups(groups) {
     return new Promise(function (resolve, reject) {
         var result = db.moveGroups(groups.host, groups.mover);
@@ -81,7 +95,7 @@ function moveGroups(groups) {
 exports.moveGroups = moveGroups;
 function deleteGroup(group) {
     return new Promise(function (resolve, reject) {
-        var result = db.deleteGroup(group);
+        var result = db.deleteGroup(group, group.flatten);
         resolve(result);
     });
 }
