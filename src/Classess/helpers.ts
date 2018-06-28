@@ -1,7 +1,7 @@
 import {User} from "./User";
 import {Group} from "./Group";
 import StateStore from "./../State/StateStore";
-import io from 'socket.io-client';
+import * as io from "socket.io-client";
 
 const socket = io('http://localhost:4000');
 
