@@ -13,7 +13,7 @@
             "id": 2,
             "name": "Moshe"
           },
-          "timeSent": "10:00:00"
+          "timeSent": "8:00:00"
         },
         {
           "id": 2,
@@ -26,7 +26,7 @@
             "id": 2,
             "name": "Moshe"
           },
-          "timeSent": "10:03:00"
+          "timeSent": "08:03:00"
         }
       ]
     }
@@ -45,7 +45,7 @@
           "id": 1,
           "name": "Raz"
         },
-        "timeSent": "10:02:00"
+        "timeSent": "08:02:00"
       }
     ]
   }

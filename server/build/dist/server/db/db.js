@@ -182,6 +182,9 @@ var DB = /** @class */ (function () {
     };
     DB.prototype.getConversation = function (sender, receiver) {
         var messages = DB.readFromJson("Messages");
+        if (!messages[sender.getName()]) {
+            messages[sender.getName()] = {};
+        }
         if (messages[sender.getName()][receiver.getName()]) {
             var convo = [];
             //the entity is a group and has many senders

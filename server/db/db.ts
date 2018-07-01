@@ -225,6 +225,9 @@ class DB {
 
     getConversation(sender: ICanChat, receiver: ICanChat){
         const messages = DB.readFromJson("Messages");
+        if (!messages[sender.getName()]) {
+            messages[sender.getName()] = {};
+        }
         if (messages[sender.getName()][receiver.getName()]){
 
             let convo: any[] = [];
